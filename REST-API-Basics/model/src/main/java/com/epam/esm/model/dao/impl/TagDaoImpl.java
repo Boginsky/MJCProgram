@@ -3,6 +3,8 @@ package com.epam.esm.model.dao.impl;
 import com.epam.esm.model.dao.BaseDao;
 import com.epam.esm.model.dao.TagDao;
 import com.epam.esm.model.entity.Tag;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.util.List;
@@ -10,8 +12,14 @@ import java.util.Optional;
 
 public class TagDaoImpl extends BaseDao<Tag> implements TagDao {
 
-    public TagDaoImpl(RowMapper<Tag> rowMapper) {
-        super(rowMapper);
+    private static final String TABLE_NAME = "tags";
+    private static final RowMapper<Tag> ROW_MAPPER = new BeanPropertyRowMapper<>(Tag.class);
+    private final JdbcTemplate jdbcTemplate;
+
+    // FIXME: 29.11.2021 
+    public TagDaoImpl() {
+        super(ROW_MAPPER);
+        
     }
 
     @Override
