@@ -1,12 +1,12 @@
 package com.epam.esm.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonCreator;
 
 public class Tag extends AbstractEntity {
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String name;
 
+    @JsonCreator
     public Tag() {
     }
 

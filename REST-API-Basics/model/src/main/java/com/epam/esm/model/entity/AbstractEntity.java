@@ -1,11 +1,16 @@
 package com.epam.esm.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Objects;
 
 public class AbstractEntity {
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
 
+    @JsonCreator
     public AbstractEntity(){
     }
 
