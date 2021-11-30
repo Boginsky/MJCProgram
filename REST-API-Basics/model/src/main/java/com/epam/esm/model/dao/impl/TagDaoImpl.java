@@ -1,8 +1,8 @@
 package com.epam.esm.model.dao.impl;
 
+import com.epam.esm.model.constant.Query;
 import com.epam.esm.model.dao.TagDao;
 import com.epam.esm.model.entity.Tag;
-import com.epam.esm.model.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.epam.esm.model.query.Query.*;
+import static com.epam.esm.model.constant.Query.*;
 
 @Repository
 public class TagDaoImpl implements TagDao {
@@ -25,38 +25,39 @@ public class TagDaoImpl implements TagDao {
     @Autowired
     public TagDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        // TODO: 29.11.2021 difference between RowMapper
         rowMapper = new BeanPropertyRowMapper<>(Tag.class);
     }
 
     @Override
     public void create(Tag tag) {
-        jdbcTemplate.update(Query.CREATE, tag.getName());
+        jdbcTemplate.update(Query.CREATE_TAG, tag.getName());
     }
 
 
     @Override
     public Optional<Tag> findByName(String value) {
-        return jdbcTemplate.query(FIND_BY_NAME, rowMapper, value).stream().findAny();
+        return jdbcTemplate.query(FIND_TAG_BY_NAME, rowMapper, value).stream().findAny();
     }
 
     @Override
     public Optional<Tag> findById(Long id) {
-        return jdbcTemplate.query(FIND_BY_ID, rowMapper, id).stream().findAny();
+        return jdbcTemplate.query(FIND_TAG_BY_ID, rowMapper, id).stream().findAny();
     }
 
     @Override
     public List<Tag> getAll() {
-        return jdbcTemplate.query(GET_ALL, rowMapper);
+        return jdbcTemplate.query(GET_ALL_TAGS, rowMapper);
     }
 
     @Override
     public void deleteById(Long id) {
-        jdbcTemplate.update(DELETE_BY_ID, id);
+        jdbcTemplate.update(DELETE_TAG_BY_ID, id);
     }
 
     @Override
     public void deleteByName(String name) {
-        jdbcTemplate.update(DELETE_BY_NAME, name);
+        jdbcTemplate.update(DELETE_TAG_BY_NAME, name);
     }
 
     @Override
@@ -68,6 +69,6 @@ public class TagDaoImpl implements TagDao {
     @Override
     public void updateNameById(Map<String, Object> tagInfoForUpdate) {
         List<Object> values = new ArrayList<>(tagInfoForUpdate.values());
-        jdbcTemplate.update(UPDATE_BY_ID, values.toArray());
+        jdbcTemplate.update(UPDATE_TAG_BY_ID, values.toArray());
     }
 }

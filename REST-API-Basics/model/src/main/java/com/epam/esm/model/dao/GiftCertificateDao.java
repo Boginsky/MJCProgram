@@ -3,12 +3,14 @@ package com.epam.esm.model.dao;
 import com.epam.esm.model.entity.GiftCertificate;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public interface GiftCertificateDao {
 
     void create (GiftCertificate giftCertificate);
 
-    void createGiftCertificateTagReference(GiftCertificate giftCertificate, Long tagId);
+    void createGiftCertificateTagReference(Long giftCertificateId, Long tagId);
 
     List<GiftCertificate> getAll();
 
@@ -16,13 +18,17 @@ public interface GiftCertificateDao {
 
     void deleteByName(String name);
 
-    void findById(Long id);
+    Optional<GiftCertificate> findById(Long id);
 
-    void findByName(String name);
+    Optional<GiftCertificate> findByName(String name);
 
-    void updateById(GiftCertificate giftCertificate, Long giftCertificateId);
+    void updateById(Long giftCertificateId, Map<String, Object> giftCertificateInfoForUpdate);
 
     List<GiftCertificate> getGiftCertificateByTagId(Long tagId);
 
-    // FIXME: 28.11.2021 add methods with sorting
+    List<GiftCertificate> getAllWithSorting(List<String> sortColumns, List<String> orderTypes);
+
+    List<GiftCertificate> findWithFiltering(String name,String description);
+
+    // FIXME: 30.11.2021 add both method with sorting and filtering
 }

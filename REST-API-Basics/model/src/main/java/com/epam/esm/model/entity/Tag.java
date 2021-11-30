@@ -2,7 +2,7 @@ package com.epam.esm.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
-public class Tag extends AbstractEntity {
+public class Tag extends ApplicationBaseEntity {
 
     private String name;
 

@@ -1,20 +1,18 @@
 package com.epam.esm.model.entity;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Objects;
 
-public class AbstractEntity {
+public class ApplicationBaseEntity {
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Long id;
 
-    @JsonCreator
-    public AbstractEntity(){
+    public ApplicationBaseEntity() {
     }
 
-    public AbstractEntity(Long id) {
+    public ApplicationBaseEntity(Long id) {
         this.id = id;
     }
 
@@ -32,7 +30,7 @@ public class AbstractEntity {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractEntity that = (AbstractEntity) o;
+        ApplicationBaseEntity that = (ApplicationBaseEntity) o;
         return Objects.equals(id, that.id);
     }
 

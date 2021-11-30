@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 
-public class GiftCertificate extends AbstractEntity {
+public class GiftCertificate extends ApplicationBaseEntity {
 
     private String name;
     private String description;
