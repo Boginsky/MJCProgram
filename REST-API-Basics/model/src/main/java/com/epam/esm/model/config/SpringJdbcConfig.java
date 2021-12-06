@@ -16,15 +16,15 @@ import javax.sql.DataSource;
 @PropertySource("classpath:database.properties")
 public class SpringJdbcConfig {
 
-    @Value("${driverClass}")
+    @Value("${dataSource.driverClass}")
     private String driveClass;
-    @Value("${url}")
+    @Value("${dataSource.jdbcUrl}")
     private String databaseUrl;
-    @Value("${userName}")
+    @Value("${dataSource.username}")
     private String userName;
-    @Value("${password}")
+    @Value("${dataSource.password}")
     private String password;
-    @Value("${maximumPoolSize}")
+    @Value("${dataSource.maximumPoolSize}")
     private int maxPoolSize;
 
     @Bean

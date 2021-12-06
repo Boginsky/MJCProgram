@@ -13,7 +13,7 @@ public interface TagService {
 
     Tag findByName(String name) throws ServiceException;
 
-    void updateNameById(Map<String, Object> tagInfoForUpdate);
+    void updateNameById(Long id, String name) throws ServiceException;
 
     void deleteById(Long id) throws ServiceException;
 

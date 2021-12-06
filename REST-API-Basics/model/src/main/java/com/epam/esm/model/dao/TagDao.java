@@ -3,7 +3,6 @@ package com.epam.esm.model.dao;
 import com.epam.esm.model.entity.Tag;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public interface TagDao {
@@ -12,7 +11,7 @@ public interface TagDao {
 
     Optional<Tag> findByName(String name);
 
-    void updateNameById(Map<String,Object> tagInfoForUpdate);
+    void updateNameById(Long id, String name);
 
     void deleteById(Long id);
 

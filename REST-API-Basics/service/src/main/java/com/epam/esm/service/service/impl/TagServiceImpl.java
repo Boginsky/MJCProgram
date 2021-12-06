@@ -25,17 +25,16 @@ public class TagServiceImpl implements TagService {
         this.tagValidator = tagValidator;
     }
 
-    // FIXME: 01.12.2021 rollback SQLException спросить
     @Transactional
     @Override
     public void create(Tag tag) throws ServiceException {
         if (!tagValidator.isValid(tag)) {
-            throw new ServiceException("Exception in com.epam.esm.service.service: tag is invalid");
+            throw new ServiceException("Exception in service: tag is invalid");
         }
         String tagName = tag.getName();
         boolean isTagExist = tagDao.findByName(tagName).isPresent();
         if (isTagExist) {
-            throw new ServiceException("Exception in com.epam.esm.service.service: tag already exists");
+            throw new ServiceException("Exception in service: tag already exists");
         }
         tagDao.create(tag);
     }
@@ -46,13 +45,17 @@ public class TagServiceImpl implements TagService {
         if (optionalTag.isPresent()) {
             return optionalTag.get();
         } else {
-            throw new ServiceException("Exception in com.epam.esm.service.service: can't find tag by name");
+            throw new ServiceException("Exception in service: can't find tag by name");
         }
     }
 
+    @Transactional
     @Override
-    public void updateNameById(Map<String, Object> tagInfoForUpdate) {
-
+    public void updateNameById(Long id, String name) throws ServiceException {
+        if(!tagDao.findById(id).isPresent()){
+            throw new ServiceException("Exception in service: can't update tag");
+        }
+        tagDao.updateNameById(id,name);
     }
 
     @Transactional
@@ -60,7 +63,7 @@ public class TagServiceImpl implements TagService {
     public void deleteById(Long id) throws ServiceException {
         Optional<Tag> optionalTag = tagDao.findById(id);
         if (!optionalTag.isPresent()) {
-            throw new ServiceException("Exception in com.epam.esm.service.service: there is no such tag");
+            throw new ServiceException("Exception in service: there is no such tag");
         }
         tagDao.deleteById(id);
     }
@@ -70,7 +73,7 @@ public class TagServiceImpl implements TagService {
     public void deleteByName(String name) throws ServiceException {
         Optional<Tag> optionalTag = tagDao.findByName(name);
         if (!optionalTag.isPresent()) {
-            throw new ServiceException("Exception in com.epam.esm.service.service: this is no such tag");
+            throw new ServiceException("Exception in service: this is no such tag");
         }
         tagDao.deleteByName(name);
     }
@@ -86,7 +89,7 @@ public class TagServiceImpl implements TagService {
         if (optionalTag.isPresent()) {
             return optionalTag.get();
         } else {
-            throw new ServiceException("Exception in com.epam.esm.service.service: can't find tag by id");
+            throw new ServiceException("Exception in service: can't find tag by id");
         }
     }
 

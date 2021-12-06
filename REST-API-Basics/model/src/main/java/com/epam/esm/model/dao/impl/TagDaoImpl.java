@@ -9,9 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static com.epam.esm.model.constant.Query.*;
@@ -65,10 +63,8 @@ public class TagDaoImpl implements TagDao {
         return jdbcTemplate.query(GET_TAGS_BY_GIFT_CERTIFICATE_ID, rowMapper, giftCertificateId);
     }
 
-    // FIXME: 29.11.2021
     @Override
-    public void updateNameById(Map<String, Object> tagInfoForUpdate) {
-        List<Object> values = new ArrayList<>(tagInfoForUpdate.values());
-        jdbcTemplate.update(UPDATE_TAG_BY_ID, values.toArray());
+    public void updateNameById(Long id, String name) {
+        jdbcTemplate.update(UPDATE_TAG_BY_ID, name, id);
     }
 }
