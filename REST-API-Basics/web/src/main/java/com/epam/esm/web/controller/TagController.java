@@ -28,10 +28,10 @@ public class TagController {
         return tagService.getAll();
     }
 
-    @GetMapping(value = "/{tagId}")
+    @GetMapping(value = "/id/{tagId}")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
-    public Tag getById(@PathVariable("tagId") long id) throws ControllerException {
+    public Tag getById(@PathVariable("tagId") Long id) throws ControllerException {
         try {
             return tagService.findById(id);
         } catch (ServiceException e) {
@@ -39,7 +39,7 @@ public class TagController {
         }
     }
 
-    @GetMapping(value = "/{tagName}")
+    @GetMapping(value = "/name/{tagName}")
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public Tag getByName(@PathVariable("tagName") String name) throws ControllerException {
@@ -50,14 +50,14 @@ public class TagController {
         }
     }
 
-    @GetMapping(value = "/{giftCertificateId}")
+    @GetMapping(value = "/gift_certificate/{giftCertificateId}")
     @ResponseStatus(HttpStatus.OK)
-    public List<Tag> getTagsByGiftCertificateId(@PathVariable("giftCertificateId") long id){
+    public List<Tag> getTagsByGiftCertificateId(@PathVariable("giftCertificateId") Long id){
         return tagService.getTagsByGiftCertificateId(id);
     }
 
 
-    @DeleteMapping("/{tagName}")
+    @DeleteMapping("/name/{tagName}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteByName(@PathVariable("tagName") String name) throws ControllerException {
         try {
@@ -67,9 +67,9 @@ public class TagController {
         }
     }
 
-    @DeleteMapping("/{tagId}")
+    @DeleteMapping("/id/{tagId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(@PathVariable("tagId") long id) throws ControllerException {
+    public void deleteById(@PathVariable("tagId") Long id) throws ControllerException {
         try {
             tagService.deleteById(id);
         } catch (ServiceException e) {

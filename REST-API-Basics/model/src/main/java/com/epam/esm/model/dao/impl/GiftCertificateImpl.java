@@ -76,8 +76,8 @@ public class GiftCertificateImpl implements GiftCertificateDao {
         return jdbcTemplate.query(GET_GIFT_CERTIFICATE_BY_NAME, rowMapper, name).stream().findAny();
     }
 
+    // FIXME: 08.12.2021
     @Override
-    // FIXME: 30.11.2021 update
     public void updateById(Long giftCertificateId, Map<String, Object> giftCertificateInfoForUpdate) {
         List<Object> values = new ArrayList<>(giftCertificateInfoForUpdate.values());
         jdbcTemplate.update(UPDATE_GIFT_CERTIFICATE_BY_ID,values.toArray(),giftCertificateId);
@@ -86,6 +86,12 @@ public class GiftCertificateImpl implements GiftCertificateDao {
     @Override
     public List<GiftCertificate> getGiftCertificateByTagId(Long tagId) {
         return jdbcTemplate.query(GET_GIFT_CERTIFICATE_BY_TAG_ID,rowMapper,tagId);
+    }
+
+    @Override
+    public List<Long> getTagIdsByGiftCertificateId(Long certificateId) {
+        return jdbcTemplate.query(GET_TAG_IDS_BY_GIFT_CERTIFICATE_ID,
+                (resultSet, i) -> resultSet.getLong("tag.id"),certificateId);
     }
 
     @Override

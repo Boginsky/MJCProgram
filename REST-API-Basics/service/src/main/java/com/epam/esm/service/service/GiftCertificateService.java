@@ -5,8 +5,6 @@ import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.service.exception.ServiceException;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 public interface GiftCertificateService {
 
@@ -14,20 +12,22 @@ public interface GiftCertificateService {
 
     List<GiftCertificate> getAll();
 
-    void deleteById(Long id);
+    void deleteById(Long id) throws ServiceException;
 
-    void deleteByName(String name);
+    void deleteByName(String name) throws ServiceException;
 
-    Optional<GiftCertificate> findById(Long id);
+    GiftCertificate findById(Long id) throws ServiceException;
 
-    Optional<GiftCertificate> findByName(String name);
+    GiftCertificate findByName(String name) throws ServiceException;
 
-    void updateById(Long giftCertificateId, Map<String, Object> giftCertificateInfoForUpdate);
+    GiftCertificateDto updateById(Long giftCertificateId, GiftCertificateDto giftCertificateDto) throws ServiceException;
 
     List<GiftCertificate> getGiftCertificateByTagId(Long tagId);
 
     List<GiftCertificate> getAllWithSorting(List<String> sortColumns, List<String> orderTypes);
 
     List<GiftCertificate> findWithFiltering(String name, String description);
+
+    List<GiftCertificateDto> getAllByTagId(Long tagId) throws ServiceException;
 
 }

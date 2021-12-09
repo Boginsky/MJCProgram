@@ -26,6 +26,8 @@ public interface GiftCertificateDao {
 
     List<GiftCertificate> getGiftCertificateByTagId(Long tagId);
 
+    List<Long> getTagIdsByGiftCertificateId(Long giftCertificateId);
+
     List<GiftCertificate> getAllWithSorting(List<String> sortColumns, List<String> orderTypes);
 
     List<GiftCertificate> findWithFiltering(String name,String description);

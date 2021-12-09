@@ -3,14 +3,13 @@ package com.epam.esm.service.service.impl;
 import com.epam.esm.model.dao.TagDao;
 import com.epam.esm.model.entity.Tag;
 import com.epam.esm.service.exception.ServiceException;
+import com.epam.esm.service.service.TagService;
+import com.epam.esm.service.validator.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.epam.esm.service.service.TagService;
-import com.epam.esm.service.validator.Validator;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -52,10 +51,10 @@ public class TagServiceImpl implements TagService {
     @Transactional
     @Override
     public void updateNameById(Long id, String name) throws ServiceException {
-        if(!tagDao.findById(id).isPresent()){
+        if (!tagDao.findById(id).isPresent()) {
             throw new ServiceException("Exception in service: can't update tag");
         }
-        tagDao.updateNameById(id,name);
+        tagDao.updateNameById(id, name);
     }
 
     @Transactional
