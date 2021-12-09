@@ -4,7 +4,6 @@ import com.epam.esm.model.entity.Tag;
 import com.epam.esm.service.exception.ServiceException;
 
 import java.util.List;
-import java.util.Map;
 
 
 public interface TagService {

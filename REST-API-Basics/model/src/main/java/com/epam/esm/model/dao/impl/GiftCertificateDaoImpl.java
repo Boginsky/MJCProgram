@@ -1,5 +1,6 @@
 package com.epam.esm.model.dao.impl;
 
+import com.epam.esm.model.constant.SortParamsContext;
 import com.epam.esm.model.dao.GiftCertificateDao;
 import com.epam.esm.model.entity.GiftCertificate;
 import com.epam.esm.model.util.QueryBuildHelper;
@@ -20,13 +21,13 @@ import static com.epam.esm.model.constant.ColumnName.*;
 import static com.epam.esm.model.constant.Query.*;
 
 @Repository
-public class GiftCertificateImpl implements GiftCertificateDao {
+public class GiftCertificateDaoImpl implements GiftCertificateDao {
 
     private final JdbcTemplate jdbcTemplate;
     private final RowMapper<GiftCertificate> rowMapper;
 
     @Autowired
-    public GiftCertificateImpl(JdbcTemplate jdbcTemplate) {
+    public GiftCertificateDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
         rowMapper = new RowMapper<GiftCertificate>() {
             @Override
@@ -46,9 +47,9 @@ public class GiftCertificateImpl implements GiftCertificateDao {
 
     @Override
     public void create(GiftCertificate giftCertificate) {
-        jdbcTemplate.update(CREATE_GIFT_CERTIFICATE,giftCertificate.getName()
-                ,giftCertificate.getDescription(), giftCertificate.getPrice()
-                ,giftCertificate.getDuration());
+        jdbcTemplate.update(CREATE_GIFT_CERTIFICATE, giftCertificate.getName()
+                , giftCertificate.getDescription(), giftCertificate.getPrice()
+                , giftCertificate.getDuration());
     }
 
     @Override
@@ -58,7 +59,7 @@ public class GiftCertificateImpl implements GiftCertificateDao {
 
     @Override
     public void deleteById(Long id) {
-        jdbcTemplate.update(DELETE_GIFT_CERTIFICATE_BY_ID,id);
+        jdbcTemplate.update(DELETE_GIFT_CERTIFICATE_BY_ID, id);
     }
 
     @Override
@@ -68,7 +69,7 @@ public class GiftCertificateImpl implements GiftCertificateDao {
 
     @Override
     public Optional<GiftCertificate> findById(Long id) {
-        return jdbcTemplate.query(GET_GIFT_CERTIFICATE_BY_ID,rowMapper,id).stream().findAny();
+        return jdbcTemplate.query(GET_GIFT_CERTIFICATE_BY_ID, rowMapper, id).stream().findAny();
     }
 
     @Override
@@ -76,39 +77,42 @@ public class GiftCertificateImpl implements GiftCertificateDao {
         return jdbcTemplate.query(GET_GIFT_CERTIFICATE_BY_NAME, rowMapper, name).stream().findAny();
     }
 
-    // FIXME: 08.12.2021
     @Override
     public void updateById(Long giftCertificateId, Map<String, Object> giftCertificateInfoForUpdate) {
         List<Object> values = new ArrayList<>(giftCertificateInfoForUpdate.values());
-        jdbcTemplate.update(UPDATE_GIFT_CERTIFICATE_BY_ID,values.toArray(),giftCertificateId);
+        values.add(giftCertificateId);
+        String query = new QueryBuildHelper()
+                .buildQueryForUpdate(new ArrayList<>(giftCertificateInfoForUpdate.keySet()));
+        jdbcTemplate.update(query, values.toArray());
     }
 
     @Override
-    public List<GiftCertificate> getGiftCertificateByTagId(Long tagId) {
-        return jdbcTemplate.query(GET_GIFT_CERTIFICATE_BY_TAG_ID,rowMapper,tagId);
+    public List<GiftCertificate> getGiftCertificateByTagName(String tagName) {
+        return jdbcTemplate.query(GET_GIFT_CERTIFICATE_BY_TAG_NAME, rowMapper, tagName);
     }
 
     @Override
     public List<Long> getTagIdsByGiftCertificateId(Long certificateId) {
         return jdbcTemplate.query(GET_TAG_IDS_BY_GIFT_CERTIFICATE_ID,
-                (resultSet, i) -> resultSet.getLong("tag.id"),certificateId);
+                (resultSet, i) -> resultSet.getLong("tag.id"), certificateId);
     }
 
     @Override
-    public List<GiftCertificate> getAllWithSorting(List<String> sortColumns, List<String> orderTypes) {
-        String query = new QueryBuildHelper().buildSortingQuery(sortColumns,orderTypes);
-        return jdbcTemplate.query(query,rowMapper);
+    public List<GiftCertificate> getAllWithSorting(SortParamsContext sortParamsContext) {
+        String query = new QueryBuildHelper()
+                .buildSortingQuery(sortParamsContext.getSortColumns(), sortParamsContext.getOrderTypes());
+        return jdbcTemplate.query(query, rowMapper);
     }
 
     @Override
     public List<GiftCertificate> findWithFiltering(String name, String description) {
-        String query = new QueryBuildHelper().buildFilteringQuery(name,description);
-        return jdbcTemplate.query(query,rowMapper);
+        String query = new QueryBuildHelper().buildFilteringQuery(name, description);
+        return jdbcTemplate.query(query, rowMapper);
     }
 
     @Override
     public void createGiftCertificateTagReference(Long giftCertificateId, Long tagId) {
-        jdbcTemplate.update(CREATE_GIFT_CERTIFICATE_TAG_REFERENCE,giftCertificateId,tagId);
+        jdbcTemplate.update(CREATE_GIFT_CERTIFICATE_TAG_REFERENCE, giftCertificateId, tagId);
     }
 
 

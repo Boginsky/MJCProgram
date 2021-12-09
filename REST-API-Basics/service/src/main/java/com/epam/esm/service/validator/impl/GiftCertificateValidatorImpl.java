@@ -1,8 +1,8 @@
 package com.epam.esm.service.validator.impl;
 
 import com.epam.esm.model.entity.GiftCertificate;
-import org.springframework.stereotype.Component;
 import com.epam.esm.service.validator.Validator;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 

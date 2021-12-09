@@ -17,7 +17,7 @@ public class GiftCertificateDto {
     }
 
     public GiftCertificateDto(GiftCertificate giftCertificate) {
-            this.giftCertificate = giftCertificate;
+        this.giftCertificate = giftCertificate;
     }
 
     public GiftCertificate getGiftCertificate() {
@@ -36,7 +36,7 @@ public class GiftCertificateDto {
         this.certificateTags = certificateTags;
     }
 
-    public void addTag(Tag tag){
+    public void addTag(Tag tag) {
         this.certificateTags.add(tag);
     }
 

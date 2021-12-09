@@ -23,7 +23,6 @@ public class TagDaoImpl implements TagDao {
     @Autowired
     public TagDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        // TODO: 29.11.2021 difference between RowMapper
         rowMapper = new BeanPropertyRowMapper<>(Tag.class);
     }
 

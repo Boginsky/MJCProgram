@@ -26,7 +26,7 @@ public class GiftCertificate extends ApplicationBaseEntity {
     public GiftCertificate() {
     }
 
-    public GiftCertificate(Long id,String name, String description, BigDecimal price,
+    public GiftCertificate(Long id, String name, String description, BigDecimal price,
                            Integer duration, ZonedDateTime createDate, ZonedDateTime lastUpdateDate) {
         super(id);
         this.name = name;
