@@ -1,13 +1,19 @@
 package com.epam.esm.web.controller;
 
 import com.epam.esm.model.entity.Tag;
-import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.service.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @RestController
@@ -23,56 +29,30 @@ public class TagController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<Tag> getAll() {
-        return tagService.getAll();
+    public List<Tag> getAll(
+            @RequestParam(name = "tagId", required = false) Long tagId,
+            @RequestParam(name = "tagName", required = false) String tagName,
+            @RequestParam(name = "giftCertificateId", required = false) Long giftCertificateId
+    ) {
+        return tagService.getRoute(tagId, tagName, giftCertificateId);
     }
 
-    @GetMapping(value = "/id/{tagId}")
-    @ResponseBody
-    @ResponseStatus(HttpStatus.OK)
-    public Tag getById(@PathVariable("tagId") Long id) throws ServiceException {
-        return tagService.findById(id);
-    }
-
-    @GetMapping(value = "/name/{tagName}")
-    @ResponseBody
-    @ResponseStatus(HttpStatus.OK)
-    public Tag getByName(@PathVariable("tagName") String name) throws ServiceException {
-        return tagService.findByName(name);
-    }
-
-    @GetMapping(value = "/gift_certificate/{giftCertificateId}")
-    @ResponseStatus(HttpStatus.OK)
-    public List<Tag> getTagsByGiftCertificateId(@PathVariable("giftCertificateId") Long id) {
-        return tagService.getTagsByGiftCertificateId(id);
-    }
-
-
-    @DeleteMapping("/name/{tagName}")
+    @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteByName(@PathVariable("tagName") String name) throws ServiceException {
-        tagService.deleteByName(name);
-
-    }
-
-    @DeleteMapping("/id/{tagId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(@PathVariable("tagId") Long id) throws ServiceException {
-        tagService.deleteById(id);
+    public void deleteById(@RequestParam(name = "tagId") Long tagId) {
+        tagService.deleteById(tagId);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void create(@RequestBody Tag tag,
-                       HttpServletResponse httpServletResponse) throws ServiceException {
+    public void create(@RequestBody Tag tag) {
         tagService.create(tag);
-        httpServletResponse.addHeader("Tag with name ", tag.getName() + " created");
     }
 
-    @PutMapping("/{tagId}/{tagNameForUpdate}")
+    @PutMapping
     @ResponseStatus(HttpStatus.OK)
-    public void updateById(@PathVariable("tagId") String id,
-                           @PathVariable("tagNameForUpdate") String name) throws ServiceException {
-        tagService.updateNameById(Long.parseLong(id), name);
+    public void updateById(@RequestParam("tagId") Long id,
+                           @RequestBody Tag tag) {
+        tagService.updateNameById(id, tag);
     }
 }

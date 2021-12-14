@@ -9,17 +9,15 @@ public interface TagDao {
 
     void create(Tag tag);
 
-    Optional<Tag> findByName(String name);
+    Optional<Tag> getByName(String name);
 
     void updateNameById(Long id, String name);
 
     void deleteById(Long id);
 
-    void deleteByName(String name);
-
     List<Tag> getTagsByGiftCertificateId(Long giftCertificateId);
 
-    Optional<Tag> findById(Long id);
+    Optional<Tag> getById(Long id);
 
     List<Tag> getAll();
 

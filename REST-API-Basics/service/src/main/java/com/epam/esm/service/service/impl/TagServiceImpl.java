@@ -2,15 +2,17 @@ package com.epam.esm.service.service.impl;
 
 import com.epam.esm.model.dao.TagDao;
 import com.epam.esm.model.entity.Tag;
-import com.epam.esm.service.exception.ServiceException;
+import com.epam.esm.service.exception.DuplicateEntityException;
+import com.epam.esm.service.exception.InvalidEntityException;
+import com.epam.esm.service.exception.NoSuchEntityException;
 import com.epam.esm.service.service.TagService;
 import com.epam.esm.service.validator.Validator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class TagServiceImpl implements TagService {
@@ -24,58 +26,28 @@ public class TagServiceImpl implements TagService {
         this.tagValidator = tagValidator;
     }
 
-    @Transactional
     @Override
-    public void create(Tag tag) throws ServiceException {
-        if (!tagValidator.isValid(tag)) {
-            throw new ServiceException("message.tagInvalid");
-        }
-        String tagName = tag.getName();
-        boolean isTagExist = tagDao.findByName(tagName).isPresent();
-        if (isTagExist) {
-            throw new ServiceException("message.tagExists");
-        }
-        tagDao.create(tag);
-    }
-
-    @Override
-    public Tag findByName(String name) throws ServiceException {
-        Optional<Tag> optionalTag = tagDao.findByName(name);
-        if (optionalTag.isPresent()) {
-            return optionalTag.get();
+    public List<Tag> getRoute(Long tagId, String tagName, Long giftCertificateId) {
+        if (tagId != null) {
+            return getById(tagId);
+        } else if (tagName != null) {
+            return getByName(tagName);
+        } else if (giftCertificateId != null) {
+            return getTagsByGiftCertificateId(giftCertificateId);
         } else {
-            throw new ServiceException("message.cantFindTagByName");
+            return getAll();
         }
     }
 
-    @Transactional
     @Override
-    public void updateNameById(Long id, String name) throws ServiceException {
-        if (!tagDao.findById(id).isPresent()) {
-            throw new ServiceException("message.cantUpdateTag");
-        }
-        tagDao.updateNameById(id, name);
+    public List<Tag> getByName(String name) {
+        Tag tag = tagDao.getByName(name).orElseThrow(
+                () -> new NoSuchEntityException("message.cantFindTagByName"));
+        List<Tag> listOfTags = new ArrayList<>();
+        listOfTags.add(tag);
+        return listOfTags;
     }
 
-    @Transactional
-    @Override
-    public void deleteById(Long id) throws ServiceException {
-        Optional<Tag> optionalTag = tagDao.findById(id);
-        if (!optionalTag.isPresent()) {
-            throw new ServiceException("message.tagDoesntExist");
-        }
-        tagDao.deleteById(id);
-    }
-
-    @Transactional
-    @Override
-    public void deleteByName(String name) throws ServiceException {
-        Optional<Tag> optionalTag = tagDao.findByName(name);
-        if (!optionalTag.isPresent()) {
-            throw new ServiceException("message.tagDoesntExist");
-        }
-        tagDao.deleteByName(name);
-    }
 
     @Override
     public List<Tag> getTagsByGiftCertificateId(Long giftCertificateId) {
@@ -83,17 +55,58 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public Tag findById(Long id) throws ServiceException {
-        Optional<Tag> optionalTag = tagDao.findById(id);
-        if (optionalTag.isPresent()) {
-            return optionalTag.get();
-        } else {
-            throw new ServiceException("message.cantFindTagById");
-        }
+    public List<Tag> getById(Long id) {
+        Tag tag = tagDao.getById(id).orElseThrow(
+                () -> new NoSuchEntityException("message.cantFindTagById"));
+        List<Tag> listOfTags = new ArrayList<>();
+        listOfTags.add(tag);
+        return listOfTags;
     }
 
     @Override
     public List<Tag> getAll() {
         return tagDao.getAll();
+    }
+
+    @Transactional
+    @Override
+    public void create(Tag tag) {
+        if (!tagValidator.isValid(tag)) {
+            throw new InvalidEntityException("message.tagInvalid");
+        }
+        isExists(tag);
+        tagDao.create(tag);
+    }
+
+    @Transactional
+    @Override
+    public void updateNameById(Long id, Tag tag) {
+        isPresent(id);
+        if(tag.getName() != null) {
+            tagDao.updateNameById(id, tag.getName());
+        }else {
+            throw new InvalidEntityException("message.tagInvalid");
+        }
+    }
+
+    @Transactional
+    @Override
+    public void deleteById(Long id) {
+        isPresent(id);
+        tagDao.deleteById(id);
+    }
+
+    private void isPresent(Long id) {
+        if (!tagDao.getById(id).isPresent()) {
+            throw new NoSuchEntityException("message.tagDoesntExist");
+        }
+    }
+
+    private void isExists(Tag tag) {
+        String tagName = tag.getName();
+        boolean isTagExist = tagDao.getByName(tagName).isPresent();
+        if (isTagExist) {
+            throw new DuplicateEntityException("message.tagExists");
+        }
     }
 }

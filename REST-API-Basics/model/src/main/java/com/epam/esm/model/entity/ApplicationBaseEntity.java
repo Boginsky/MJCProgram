@@ -7,16 +7,16 @@ import java.util.Objects;
 public class ApplicationBaseEntity {
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    private Long id;
+    private long id;
 
     public ApplicationBaseEntity() {
     }
 
-    public ApplicationBaseEntity(Long id) {
+    public ApplicationBaseEntity(long id) {
         this.id = id;
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
@@ -36,7 +36,7 @@ public class ApplicationBaseEntity {
 
     @Override
     public int hashCode() {
-        return 31 * (id == null ? 0 : id.hashCode());
+        return 31 * Objects.hash(id);
     }
 
     @Override

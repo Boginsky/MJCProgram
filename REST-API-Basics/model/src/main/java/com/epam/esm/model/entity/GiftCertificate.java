@@ -6,13 +6,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 
 public class GiftCertificate extends ApplicationBaseEntity {
 
     private String name;
     private String description;
     private BigDecimal price;
-    private Integer duration;
+    private int duration;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX")
@@ -61,11 +62,11 @@ public class GiftCertificate extends ApplicationBaseEntity {
         this.price = price;
     }
 
-    public Integer getDuration() {
+    public int getDuration() {
         return duration;
     }
 
-    public void setDuration(Integer duration) {
+    public void setDuration(int duration) {
         this.duration = duration;
     }
 
@@ -93,9 +94,10 @@ public class GiftCertificate extends ApplicationBaseEntity {
         return name.equals(giftCertificate.name) &&
                 description.equals(giftCertificate.description) &&
                 price.equals(giftCertificate.price) &&
-                duration.equals(giftCertificate.duration) &&
+                Objects.equals(duration, giftCertificate.duration) &&
                 createDate.equals(giftCertificate.createDate) &&
                 lastUpdateDate.equals(giftCertificate.lastUpdateDate);
+
     }
 
     @Override
@@ -104,9 +106,9 @@ public class GiftCertificate extends ApplicationBaseEntity {
         result = 31 * result + ((name == null) ? 0 : name.hashCode());
         result = 31 * result + ((description == null) ? 0 : description.hashCode());
         result = 31 * result + ((price == null) ? 0 : price.hashCode());
-        result = 31 * result + ((duration == null) ? 0 : duration.hashCode());
         result = 31 * result + ((createDate == null) ? 0 : createDate.hashCode());
         result = 31 * result + ((lastUpdateDate == null) ? 0 : lastUpdateDate.hashCode());
+        result = 31 * result + duration;
         return result;
     }
 
@@ -122,7 +124,6 @@ public class GiftCertificate extends ApplicationBaseEntity {
         sb.append('}');
         return sb.toString();
     }
-
     public static Builder builder() {
         return new Builder();
     }

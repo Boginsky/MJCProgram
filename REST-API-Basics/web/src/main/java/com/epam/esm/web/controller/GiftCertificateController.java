@@ -1,21 +1,25 @@
 package com.epam.esm.web.controller;
 
-import com.epam.esm.model.constant.SortParamsContext;
 import com.epam.esm.model.entity.GiftCertificate;
 import com.epam.esm.service.dto.GiftCertificateDto;
-import com.epam.esm.service.exception.ServiceException;
 import com.epam.esm.service.service.GiftCertificateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
-import java.util.Map;
 
 
 @RestController
-@RequestMapping("/gift_certificates")
+@RequestMapping("/gift-certificates")
 public class GiftCertificateController {
 
     private final GiftCertificateService giftCertificateService;
@@ -27,64 +31,38 @@ public class GiftCertificateController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<GiftCertificate> getAll() {
-        return giftCertificateService.getAll();
+    public List<GiftCertificate> getAll(
+            @RequestParam(name = "giftCertificateId", required = false) Long giftCertificateId
+    ) {
+        return giftCertificateService.getRoute(giftCertificateId);
     }
 
-    @GetMapping("/with_tags")
-    @ResponseStatus(HttpStatus.OK)
-    public List<GiftCertificateDto> getAllWithTags() {
-        return giftCertificateService.getAllWithTags();
+    @GetMapping("/with-tags")
+    public List<GiftCertificateDto> getAllWithTags(
+            @RequestParam(name = "tagName", required = false) String tagName,
+            @RequestParam(name = "sort", required = false) List<String> sortColumns,
+            @RequestParam(name = "order", required = false) List<String> orderType,
+            @RequestParam(name = "filter", required = false) List<String> filterBy
+    ) {
+        return giftCertificateService.getRouteWithTags(tagName, sortColumns, orderType, filterBy);
     }
 
-    @GetMapping("/{giftCertificateId}")
+    @PutMapping
     @ResponseStatus(HttpStatus.OK)
-    public GiftCertificate getById(@PathVariable("giftCertificateId") Long id) throws ServiceException {
-        return giftCertificateService.findById(id);
-    }
-
-    @PutMapping("/{giftCertificateId}")
-    @ResponseStatus(HttpStatus.OK)
-    public GiftCertificateDto updateById(@PathVariable("giftCertificateId") Long id,
-                                         @RequestBody GiftCertificateDto giftCertificateDto) throws ServiceException {
+    public GiftCertificateDto updateById(@RequestParam("giftCertificateId") Long id,
+                                         @RequestBody GiftCertificateDto giftCertificateDto) {
         return giftCertificateService.updateById(id, giftCertificateDto);
-
     }
 
-    @DeleteMapping("{giftCertificateId}")
+    @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(@PathVariable("giftCertificateId") Long id) throws ServiceException {
+    public void deleteById(@RequestParam("giftCertificateId") Long id) {
         giftCertificateService.deleteById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void create(@RequestBody GiftCertificateDto giftCertificateDto,
-                       HttpServletResponse httpServletResponse) throws ServiceException {
+    public void create(@RequestBody GiftCertificateDto giftCertificateDto) {
         giftCertificateService.create(giftCertificateDto);
-        httpServletResponse.addHeader("Gift certificate with name ", giftCertificateDto
-                .getGiftCertificate().getName() + " created");
-    }
-
-    @GetMapping("/sort/")
-    @ResponseStatus(HttpStatus.OK)
-    public List<GiftCertificate> getWithSorting(@RequestBody Map<String, String> sortParamsContext) {
-        return giftCertificateService.getAllWithSorting(new SortParamsContext(sortParamsContext));
-    }
-
-    @GetMapping("/filter/")
-    @ResponseStatus(HttpStatus.OK)
-    public List<GiftCertificate> getWithFiltering(
-            @RequestParam(name = "name", required = false) String name,
-            @RequestParam(name = "description,", required = false) String description
-    ) {
-        return giftCertificateService.findWithFiltering(name, description);
-    }
-
-    @GetMapping("/with_tag")
-    @ResponseStatus(HttpStatus.OK)
-    public List<GiftCertificate> getGiftCertificateByTagName(
-            @RequestParam(name = "tagName") String tagName) {
-        return giftCertificateService.getAllByTagName(tagName);
     }
 }

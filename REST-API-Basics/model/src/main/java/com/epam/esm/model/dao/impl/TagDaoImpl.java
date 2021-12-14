@@ -12,7 +12,14 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
-import static com.epam.esm.model.constant.Query.*;
+import static com.epam.esm.model.constant.Query.DELETE_TAG_BY_ID;
+import static com.epam.esm.model.constant.Query.DELETE_TAG_BY_NAME;
+import static com.epam.esm.model.constant.Query.FIND_TAG_BY_ID;
+import static com.epam.esm.model.constant.Query.FIND_TAG_BY_NAME;
+import static com.epam.esm.model.constant.Query.GET_ALL_TAGS;
+import static com.epam.esm.model.constant.Query.GET_TAGS_BY_GIFT_CERTIFICATE_ID;
+import static com.epam.esm.model.constant.Query.UPDATE_TAG_BY_ID;
+
 
 @Repository
 public class TagDaoImpl implements TagDao {
@@ -33,12 +40,12 @@ public class TagDaoImpl implements TagDao {
 
 
     @Override
-    public Optional<Tag> findByName(String value) {
+    public Optional<Tag> getByName(String value) {
         return jdbcTemplate.query(FIND_TAG_BY_NAME, rowMapper, value).stream().findAny();
     }
 
     @Override
-    public Optional<Tag> findById(Long id) {
+    public Optional<Tag> getById(Long id) {
         return jdbcTemplate.query(FIND_TAG_BY_ID, rowMapper, id).stream().findAny();
     }
 
@@ -50,11 +57,6 @@ public class TagDaoImpl implements TagDao {
     @Override
     public void deleteById(Long id) {
         jdbcTemplate.update(DELETE_TAG_BY_ID, id);
-    }
-
-    @Override
-    public void deleteByName(String name) {
-        jdbcTemplate.update(DELETE_TAG_BY_NAME, name);
     }
 
     @Override

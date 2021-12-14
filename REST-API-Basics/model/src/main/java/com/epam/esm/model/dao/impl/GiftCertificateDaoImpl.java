@@ -1,6 +1,5 @@
 package com.epam.esm.model.dao.impl;
 
-import com.epam.esm.model.constant.SortParamsContext;
 import com.epam.esm.model.dao.GiftCertificateDao;
 import com.epam.esm.model.entity.GiftCertificate;
 import com.epam.esm.model.util.QueryBuildHelper;
@@ -17,8 +16,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.epam.esm.model.constant.ColumnName.*;
-import static com.epam.esm.model.constant.Query.*;
+import static com.epam.esm.model.constant.ColumnName.GIFT_CERTIFICATE_CREATE_TIME;
+import static com.epam.esm.model.constant.ColumnName.GIFT_CERTIFICATE_DESCRIPTION;
+import static com.epam.esm.model.constant.ColumnName.GIFT_CERTIFICATE_DURATION;
+import static com.epam.esm.model.constant.ColumnName.GIFT_CERTIFICATE_ID;
+import static com.epam.esm.model.constant.ColumnName.GIFT_CERTIFICATE_LAST_UPDATE_DATE;
+import static com.epam.esm.model.constant.ColumnName.GIFT_CERTIFICATE_NAME;
+import static com.epam.esm.model.constant.ColumnName.GIFT_CERTIFICATE_PRICE;
+import static com.epam.esm.model.constant.Query.CREATE_GIFT_CERTIFICATE;
+import static com.epam.esm.model.constant.Query.CREATE_GIFT_CERTIFICATE_TAG_REFERENCE;
+import static com.epam.esm.model.constant.Query.DELETE_GIFT_CERTIFICATE_BY_ID;
+import static com.epam.esm.model.constant.Query.DELETE_GIFT_CERTIFICATE_BY_NAME;
+import static com.epam.esm.model.constant.Query.GET_ALL_GIFT_CERTIFICATES;
+import static com.epam.esm.model.constant.Query.GET_GIFT_CERTIFICATE_BY_ID;
+import static com.epam.esm.model.constant.Query.GET_GIFT_CERTIFICATE_BY_NAME;
+import static com.epam.esm.model.constant.Query.GET_GIFT_CERTIFICATE_BY_TAG_NAME;
+import static com.epam.esm.model.constant.Query.GET_TAG_IDS_BY_GIFT_CERTIFICATE_ID;
 
 @Repository
 public class GiftCertificateDaoImpl implements GiftCertificateDao {
@@ -63,17 +76,12 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     }
 
     @Override
-    public void deleteByName(String name) {
-        jdbcTemplate.update(DELETE_GIFT_CERTIFICATE_BY_NAME, name);
-    }
-
-    @Override
-    public Optional<GiftCertificate> findById(Long id) {
+    public Optional<GiftCertificate> getById(Long id) {
         return jdbcTemplate.query(GET_GIFT_CERTIFICATE_BY_ID, rowMapper, id).stream().findAny();
     }
 
     @Override
-    public Optional<GiftCertificate> findByName(String name) {
+    public Optional<GiftCertificate> getByName(String name) {
         return jdbcTemplate.query(GET_GIFT_CERTIFICATE_BY_NAME, rowMapper, name).stream().findAny();
     }
 
@@ -97,16 +105,10 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
                 (resultSet, i) -> resultSet.getLong("tag.id"), certificateId);
     }
 
-    @Override
-    public List<GiftCertificate> getAllWithSorting(SortParamsContext sortParamsContext) {
-        String query = new QueryBuildHelper()
-                .buildSortingQuery(sortParamsContext.getSortColumns(), sortParamsContext.getOrderTypes());
-        return jdbcTemplate.query(query, rowMapper);
-    }
-
-    @Override
-    public List<GiftCertificate> findWithFiltering(String name, String description) {
-        String query = new QueryBuildHelper().buildFilteringQuery(name, description);
+    public List<GiftCertificate> getAllWithSortingAndFiltering(List<String> sortColumns,
+                                                               List<String> orderType,
+                                                               List<String> filterBy) {
+        String query = new QueryBuildHelper().buildSortingQuery(sortColumns,orderType,filterBy);
         return jdbcTemplate.query(query, rowMapper);
     }
 

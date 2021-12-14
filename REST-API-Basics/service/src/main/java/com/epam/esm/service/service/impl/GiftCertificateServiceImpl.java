@@ -1,12 +1,13 @@
 package com.epam.esm.service.service.impl;
 
-import com.epam.esm.model.constant.SortParamsContext;
 import com.epam.esm.model.dao.GiftCertificateDao;
 import com.epam.esm.model.dao.TagDao;
 import com.epam.esm.model.entity.GiftCertificate;
 import com.epam.esm.model.entity.Tag;
 import com.epam.esm.service.dto.GiftCertificateDto;
-import com.epam.esm.service.exception.ServiceException;
+import com.epam.esm.service.exception.DuplicateEntityException;
+import com.epam.esm.service.exception.InvalidEntityException;
+import com.epam.esm.service.exception.NoSuchEntityException;
 import com.epam.esm.service.service.GiftCertificateService;
 import com.epam.esm.service.validator.Validator;
 import com.epam.esm.service.validator.impl.GiftCertificateValidatorImpl;
@@ -15,19 +16,24 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 
 @Service
 public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     private final GiftCertificateDao giftCertificateDao;
     private final TagDao tagDao;
-    private final Validator<GiftCertificate> giftCertificateValidator;
+    private final GiftCertificateValidatorImpl giftCertificateValidator;
     private final Validator<Tag> tagValidator;
 
     @Autowired
     public GiftCertificateServiceImpl(GiftCertificateDao giftCertificateDao, TagDao tagDao,
-                                      Validator<GiftCertificate> giftCertificateValidator,
+                                      GiftCertificateValidatorImpl giftCertificateValidator,
                                       Validator<Tag> tagValidator) {
         this.giftCertificateDao = giftCertificateDao;
         this.tagDao = tagDao;
@@ -37,24 +43,41 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
+    public List<GiftCertificate> getRoute(Long giftCertificateId) {
+        if (giftCertificateId != null) {
+            return getById(giftCertificateId);
+        } else {
+            return getAll();
+        }
+    }
+
+    @Override
+    public List<GiftCertificateDto> getRouteWithTags(String tagName, List<String> sortColumns,
+                                                     List<String> orderType, List<String> filterBy) {
+        if (tagName != null) {
+            return getAllByTagName(tagName);
+        } else if (sortColumns != null || filterBy != null) {
+            return getAllWithSortingAndFiltering(sortColumns, orderType, filterBy);
+        } else {
+            return getAllWithTags();
+        }
+    }
+
+    @Override
     public List<GiftCertificate> getAll() {
         return giftCertificateDao.getAll();
     }
 
     @Override
     @Transactional
-    public void create(GiftCertificateDto giftCertificateDto) throws ServiceException {
+    public void create(GiftCertificateDto giftCertificateDto) {
         GiftCertificate giftCertificate = giftCertificateDto.getGiftCertificate();
         validateGiftCertificate(giftCertificate);
         validateTags(giftCertificateDto.getCertificateTags());
-        String giftCertificateName = giftCertificate.getName();
-        boolean isCertificateExist = giftCertificateDao.findByName(giftCertificateName).isPresent();
-        if (isCertificateExist) {
-            throw new ServiceException("message.giftCertificateExists");
-        }
+        String giftCertificateName = getGiftCertificateName(giftCertificate);
         giftCertificateDao.create(giftCertificate);
-        Long giftCertificateId = giftCertificateDao.findByName(giftCertificateName)
-                .map(GiftCertificate::getId).orElse(-1L);
+        Long giftCertificateId = giftCertificateDao.getByName(giftCertificateName)
+                .map(GiftCertificate::getId).orElseThrow(() -> new NoSuchEntityException("message.notFound"));
         createGiftCertificateTagReference(giftCertificateDto.getCertificateTags(), giftCertificateId);
     }
 
@@ -74,98 +97,140 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Transactional
     @Override
-    public void deleteById(Long id) throws ServiceException {
-        Optional<GiftCertificate> giftCertificateOptional = giftCertificateDao.findById(id);
-        if (!giftCertificateOptional.isPresent()) {
-            throw new ServiceException("message.giftCertificateDoesntExist");
-        }
+    public void deleteById(Long id) {
+        isPresentGiftCertificate(id);
         giftCertificateDao.deleteById(id);
     }
 
     @Override
-    public GiftCertificate findById(Long id) throws ServiceException {
-        Optional<GiftCertificate> giftCertificateOptional = giftCertificateDao.findById(id);
-        if (!giftCertificateOptional.isPresent()) {
-            throw new ServiceException("message.notFound");
+    public List<GiftCertificate> getById(Long id) {
+        isPresentGiftCertificate(id);
+        GiftCertificate giftCertificate = giftCertificateDao.getById(id).get();
+        List<GiftCertificate> listOfGiftCertificate = new ArrayList();
+        listOfGiftCertificate.add(giftCertificate);
+        return listOfGiftCertificate;
+    }
+
+    @Override
+    public List<GiftCertificateDto> getAllByTagName(String tagName) {
+        List<GiftCertificateDto> giftCertificateDtoList = new ArrayList<>();
+        List<GiftCertificate> giftCertificateList = giftCertificateDao.getGiftCertificateByTagName(tagName);
+        for (GiftCertificate giftCertificate : giftCertificateList) {
+            giftCertificateDtoList.add(buildGiftCertificateDto(giftCertificate));
         }
-        return giftCertificateOptional.get();
+        return giftCertificateDtoList;
     }
 
     @Override
-    public List<GiftCertificate> getAllByTagName(String tagName) {
-        return giftCertificateDao.getGiftCertificateByTagName(tagName);
-    }
-
-    @Override
-    public List<GiftCertificate> getAllWithSorting(SortParamsContext sortParamsContext) {
-        return giftCertificateDao.getAllWithSorting(sortParamsContext);
-    }
-
-    @Override
-    public List<GiftCertificate> findWithFiltering(String name, String description) {
-        return giftCertificateDao.findWithFiltering(name, description);
+    public List<GiftCertificateDto> getAllWithSortingAndFiltering(List<String> sortColumns,
+                                                                  List<String> orderType,
+                                                                  List<String> filterBy) {
+        List<GiftCertificateDto> giftCertificateDtoList = new ArrayList<>();
+        if (sortColumns == null) {
+            sortColumns = new ArrayList<>();
+        }
+        if (orderType == null) {
+            orderType = new ArrayList<>();
+        }
+        if (filterBy == null) {
+            filterBy = new ArrayList<>();
+        }
+        List<GiftCertificate> giftCertificateList = giftCertificateDao.getAllWithSortingAndFiltering(sortColumns, orderType, filterBy);
+        for (GiftCertificate giftCertificate : giftCertificateList) {
+            giftCertificateDtoList.add(buildGiftCertificateDto(giftCertificate));
+        }
+        return giftCertificateDtoList;
     }
 
     @Transactional
     @Override
-    public GiftCertificateDto updateById(Long giftCertificateId, GiftCertificateDto giftCertificateDto) throws ServiceException {
+    public GiftCertificateDto updateById(Long giftCertificateId, GiftCertificateDto giftCertificateDto) {
         GiftCertificate giftCertificate = giftCertificateDto.getGiftCertificate();
-        if (giftCertificate != null) {
-            if (!giftCertificateDao.findById(giftCertificateId).isPresent()) {
-                throw new ServiceException("message.cantUpdateGiftCertificateById");
-            }
-            giftCertificateDao.updateById(giftCertificateId, updateInfo(giftCertificate));
-        }
         List<Tag> tagList = giftCertificateDto.getCertificateTags();
-        if (tagList != null) {
-            updateCertificateTags(tagList, giftCertificateId);
+        if (tagList == null || giftCertificate == null) {
+            throw new InvalidEntityException("message.cantUpdateGiftCertificateById");
         }
-        return buildGiftCertificateDto(giftCertificateDao.findById(giftCertificateId).get());
+        isPresentGiftCertificate(giftCertificateId);
+        giftCertificateDao.updateById(giftCertificateId, updateInfo(giftCertificate));
+        updateCertificateTags(tagList, giftCertificateId);
+        return buildGiftCertificateDto(giftCertificateDao.getById(giftCertificateId).get());
     }
 
-    private Map<String, Object> updateInfo(GiftCertificate giftCertificate) throws ServiceException {
+    private Map<String, Object> updateInfo(GiftCertificate giftCertificate) {
         Map<String, Object> updateInfo = new HashMap<>();
-        GiftCertificateValidatorImpl giftCertificateValidator =
-                (GiftCertificateValidatorImpl) this.giftCertificateValidator;
-        String name = giftCertificate.getName();
-        if (name != null) {
-            if (!giftCertificateValidator.isNameValid(name)) {
-                throw new ServiceException("message.cantUpdateInvalidName");
-            }
-            updateInfo.put("name", name);
+        isValidNameForUpdate(giftCertificate, updateInfo, giftCertificateValidator);
+        isValidDescriptionForUpdate(giftCertificate, updateInfo, giftCertificateValidator);
+        isPriceValidForUpdate(giftCertificate, updateInfo, giftCertificateValidator);
+        isDurationValidForUpdate(giftCertificate, updateInfo, giftCertificateValidator);
+        return updateInfo;
+    }
+
+    private String getGiftCertificateName(GiftCertificate giftCertificate) {
+        String giftCertificateName = giftCertificate.getName();
+        boolean isCertificateExist = giftCertificateDao.getByName(giftCertificateName).isPresent();
+        if (isCertificateExist) {
+            throw new DuplicateEntityException("message.giftCertificateExists");
         }
-        String description = giftCertificate.getDescription();
-        if (description != null) {
-            if (!giftCertificateValidator.isDescriptionValid(description)) {
-                throw new ServiceException("message.cantUpdateInvalidDescription");
-            }
-            updateInfo.put("description", description);
-        }
-        BigDecimal price = giftCertificate.getPrice();
-        if (price != null) {
-            if (!giftCertificateValidator.isPriceValid(price)) {
-                throw new ServiceException("message.cantUpdateInvalidPrice");
-            }
-            updateInfo.put("price", price);
-        }
+        return giftCertificateName;
+    }
+
+    private void isDurationValidForUpdate(GiftCertificate giftCertificate, Map<String, Object> updateInfo, GiftCertificateValidatorImpl giftCertificateValidator) {
         Integer duration = giftCertificate.getDuration();
         if (duration != null) {
             if (!giftCertificateValidator.isDurationValid(duration)) {
-                throw new ServiceException("message.cantUpdateInvalidDuration");
+                throw new InvalidEntityException("message.cantUpdateInvalidDuration");
             }
             updateInfo.put("duration", duration);
         }
-        return updateInfo;
+    }
+
+    private void isPriceValidForUpdate(GiftCertificate giftCertificate, Map<String, Object> updateInfo, GiftCertificateValidatorImpl giftCertificateValidator) {
+        BigDecimal price = giftCertificate.getPrice();
+        if (price != null) {
+            if (!giftCertificateValidator.isPriceValid(price)) {
+                throw new InvalidEntityException("message.cantUpdateInvalidPrice");
+            }
+            updateInfo.put("price", price);
+        }
+    }
+
+    private void isValidDescriptionForUpdate(GiftCertificate giftCertificate, Map<String, Object> updateInfo, GiftCertificateValidatorImpl giftCertificateValidator) {
+        String description = giftCertificate.getDescription();
+        if (description != null) {
+            if (!giftCertificateValidator.isDescriptionValid(description)) {
+                throw new InvalidEntityException("message.cantUpdateInvalidDescription");
+            }
+            updateInfo.put("description", description);
+        }
+    }
+
+    private void isValidNameForUpdate(GiftCertificate giftCertificate, Map<String, Object> updateInfo, GiftCertificateValidatorImpl giftCertificateValidator) {
+        String name = giftCertificate.getName();
+        if (name != null) {
+            if (!giftCertificateValidator.isNameValid(name)) {
+                throw new InvalidEntityException("message.cantUpdateInvalidName");
+            }
+            updateInfo.put("name", name);
+        }
+    }
+
+    private void isPresentGiftCertificate(Long id) {
+        Optional<GiftCertificate> giftCertificateOptional = giftCertificateDao.getById(id);
+        if (!giftCertificateOptional.isPresent()) {
+            throw new NoSuchEntityException("message.notFound");
+        }
     }
 
     private void updateCertificateTags(List<Tag> tagList, Long giftCertificateId) {
         for (Tag tag : tagList) {
             String tagName = tag.getName();
-            Optional<Tag> tagOptional = tagDao.findByName(tagName);
-            Tag fullTag = tagOptional.orElseGet(() -> createGiftCertificateTag(tag));
-            Long tagId = fullTag.getId();
-            if (!giftCertificateDao.getTagIdsByGiftCertificateId(giftCertificateId).contains(tagId)) {
-                giftCertificateDao.createGiftCertificateTagReference(giftCertificateId, tagId);
+            if(tagName != null) {
+                Optional<Tag> tagOptional = tagDao.getByName(tagName);
+                Tag fullTag = tagOptional.orElseGet(() -> createGiftCertificateTag(tag));
+                Long tagId = fullTag.getId();
+                if (!giftCertificateDao.getTagIdsByGiftCertificateId(giftCertificateId).contains(tagId)) {
+                    giftCertificateDao.createGiftCertificateTagReference(giftCertificateId, tagId);
+                }
             }
         }
     }
@@ -174,7 +239,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         GiftCertificateDto giftCertificateDto = new GiftCertificateDto(giftCertificate);
         List<Optional<Tag>> optionalTagList = new ArrayList<>();
         List<Long> tagIds = giftCertificateDao.getTagIdsByGiftCertificateId(giftCertificate.getId());
-        tagIds.forEach(id -> optionalTagList.add(tagDao.findById(id)));
+        tagIds.forEach(id -> optionalTagList.add(tagDao.getById(id)));
         optionalTagList.stream()
                 .filter(Optional::isPresent)
                 .forEach(tag -> giftCertificateDto.addTag(tag.get()));
@@ -185,7 +250,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     private void createGiftCertificateTagReference(List<Tag> tags, Long giftCertificateId) {
         for (Tag tag : tags) {
             String tagName = tag.getName();
-            Optional<Tag> tagOptional = tagDao.findByName(tagName);
+            Optional<Tag> tagOptional = tagDao.getByName(tagName);
             Tag fullTag = tagOptional.orElseGet(() -> createGiftCertificateTag(tag));
             Long tagId = fullTag.getId();
             giftCertificateDao.createGiftCertificateTagReference(giftCertificateId, tagId);
@@ -194,19 +259,19 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     private Tag createGiftCertificateTag(Tag tag) {
         tagDao.create(tag);
-        return tagDao.findByName(tag.getName()).get();
+        return tagDao.getByName(tag.getName()).get();
     }
 
-    private void validateGiftCertificate(GiftCertificate giftCertificate) throws ServiceException {
+    private void validateGiftCertificate(GiftCertificate giftCertificate) {
         if (!giftCertificateValidator.isValid(giftCertificate)) {
-            throw new ServiceException("message.giftCertificateInvalid");
+            throw new InvalidEntityException("message.giftCertificateInvalid");
         }
     }
 
-    private void validateTags(List<Tag> tags) throws ServiceException {
+    private void validateTags(List<Tag> tags) {
         boolean isCorrectTags = tags.stream().allMatch(tagValidator::isValid);
         if (!isCorrectTags) {
-            throw new ServiceException("message.tagInvalid");
+            throw new InvalidEntityException("message.tagInvalid");
         }
     }
 }

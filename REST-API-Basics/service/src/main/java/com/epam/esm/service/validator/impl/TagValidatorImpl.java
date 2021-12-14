@@ -13,9 +13,11 @@ public class TagValidatorImpl implements Validator<Tag> {
     @Override
     public boolean isValid(Tag tag) {
         String tagName = tag.getName();
-        int nameLength = tagName.length();
-        return tagName != null &&
-                nameLength >= MIN_NAME_LENGTH &&
-                nameLength <= MAX_NAME_LENGTH;
+        if (tagName != null) {
+            int nameLength = tagName.length();
+            return nameLength >= MIN_NAME_LENGTH &&
+                    nameLength <= MAX_NAME_LENGTH;
+        }
+        return false;
     }
 }

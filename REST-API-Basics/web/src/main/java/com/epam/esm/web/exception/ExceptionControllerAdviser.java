@@ -1,6 +1,8 @@
 package com.epam.esm.web.exception;
 
-import com.epam.esm.service.exception.ServiceException;
+import com.epam.esm.service.exception.DuplicateEntityException;
+import com.epam.esm.service.exception.InvalidEntityException;
+import com.epam.esm.service.exception.NoSuchEntityException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.ResourceBundleMessageSource;
@@ -42,9 +44,19 @@ public class ExceptionControllerAdviser {
         return bundleMessageSource.getMessage(key, null, locale);
     }
 
-    @ExceptionHandler(ServiceException.class)
-    public ResponseEntity<ExceptionResponse> handleServiceException(ServiceException e, Locale locale) {
-        return buildErrorResponse(resolveResourceBundle(e.getMessage(), locale), 40401, HttpStatus.BAD_REQUEST);
+    @ExceptionHandler(NoSuchEntityException.class)
+    public ResponseEntity<ExceptionResponse> handleServiceException(NoSuchEntityException e, Locale locale) {
+        return buildErrorResponse(resolveResourceBundle(e.getMessage(), locale), 40404, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(DuplicateEntityException.class)
+    public ResponseEntity<ExceptionResponse> handleServiceException(DuplicateEntityException e, Locale locale) {
+        return buildErrorResponse(resolveResourceBundle(e.getMessage(), locale), 40409, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(InvalidEntityException.class)
+    public ResponseEntity<ExceptionResponse> handleServiceException(InvalidEntityException e, Locale locale) {
+        return buildErrorResponse(resolveResourceBundle(e.getMessage(), locale), 40400, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)

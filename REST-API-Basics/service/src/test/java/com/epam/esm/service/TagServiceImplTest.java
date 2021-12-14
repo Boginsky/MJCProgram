@@ -3,7 +3,9 @@ package com.epam.esm.service;
 import com.epam.esm.model.dao.TagDao;
 import com.epam.esm.model.dao.impl.TagDaoImpl;
 import com.epam.esm.model.entity.Tag;
-import com.epam.esm.service.exception.ServiceException;
+import com.epam.esm.service.exception.DuplicateEntityException;
+import com.epam.esm.service.exception.InvalidEntityException;
+import com.epam.esm.service.exception.NoSuchEntityException;
 import com.epam.esm.service.service.impl.TagServiceImpl;
 import com.epam.esm.service.validator.Validator;
 import com.epam.esm.service.validator.impl.TagValidatorImpl;
@@ -29,69 +31,69 @@ public class TagServiceImplTest {
     private TagServiceImpl tagService;
 
     @BeforeAll
-    public void setUp(){
+    public void setUp() {
         id = 1l;
-        tag = new Tag(id,"tag");
+        tag = new Tag(id, "tag");
         tagDao = Mockito.mock(TagDaoImpl.class);
         tagValidator = Mockito.mock(TagValidatorImpl.class);
-        tagService = new TagServiceImpl(tagDao,tagValidator);
+        tagService = new TagServiceImpl(tagDao, tagValidator);
     }
 
     @Test
-    public void testCreateShouldCreateWhenValidAndNotExist() throws ServiceException {
+    public void testCreateShouldCreateWhenValidAndNotExist() {
         when(tagValidator.isValid(any())).thenReturn(true);
-        when(tagDao.findByName(anyString())).thenReturn(Optional.empty());
+        when(tagDao.getByName(anyString())).thenReturn(Optional.empty());
         tagService.create(tag);
         verify(tagDao).create(tag);
     }
 
     @Test
-    public void testCreateShouldThrowServiceExceptionWhenInvalid(){
+    public void testCreateShouldThrowInvalidEntityExceptionWhenInvalid() {
         when(tagValidator.isValid((any()))).thenReturn(false);
-        assertThrows(ServiceException.class, () -> tagService.create(tag));
+        assertThrows(InvalidEntityException.class, () -> tagService.create(tag));
     }
 
     @Test
-    public void testGetAllShouldGetAll(){
+    public void testGetAllShouldGetAll() {
         tagService.getAll();
         verify(tagDao).getAll();
     }
 
     @Test
-    public void testGetByIdShouldGetWhenFound() throws ServiceException {
-        when(tagDao.findById(anyLong())).thenReturn(Optional.of(tag));
-        tagService.findById(id);
-        verify(tagDao).findById(id);
+    public void testGetByIdShouldGetWhenFound() {
+        when(tagDao.getById(anyLong())).thenReturn(Optional.of(tag));
+        tagService.getById(id);
+        verify(tagDao).getById(id);
     }
 
     @Test
-    public void testCreateShouldThrowServiceExceptionWhenExists(){
+    public void testCreateShouldThrowDuplicateEntityExceptionWhenExists() {
         when(tagValidator.isValid(any())).thenReturn(true);
-        when(tagDao.findByName(anyString())).thenReturn(Optional.of(tag));
-        assertThrows(ServiceException.class, () -> tagService.create(tag));
+        when(tagDao.getByName(anyString())).thenReturn(Optional.of(tag));
+        assertThrows(DuplicateEntityException.class, () -> tagService.create(tag));
     }
 
     @Test
-    public void testGetByIdShouldThrowServiceExceptionWhenNotFound(){
-        when(tagDao.findById(anyLong())).thenReturn(Optional.empty());
-        assertThrows(ServiceException.class, () -> tagService.findById(id));
+    public void testGetByIdShouldThrowServiceExceptionWhenNotFound() {
+        when(tagDao.getById(anyLong())).thenReturn(Optional.empty());
+        assertThrows(NoSuchEntityException.class, () -> tagService.getById(id));
     }
 
     @Test
-    public void testDeleteByIdShouldDeleteWhenFound() throws ServiceException {
-        when(tagDao.findById(anyLong())).thenReturn(Optional.of(tag));
+    public void testDeleteByIdShouldDeleteWhenFound() {
+        when(tagDao.getById(anyLong())).thenReturn(Optional.of(tag));
         tagService.deleteById(id);
         verify(tagDao).deleteById(id);
     }
 
     @Test
-    public void testDeleteByIdShouldThrowsServiceExceptionWhenDoesntExist(){
-        when(tagDao.findById(anyLong())).thenReturn(Optional.empty());
-        assertThrows(ServiceException.class, () -> tagService.deleteById(id));
+    public void testDeleteByIdShouldThrowsServiceExceptionWhenDoesntExist() {
+        when(tagDao.getById(anyLong())).thenReturn(Optional.empty());
+        assertThrows(NoSuchEntityException.class, () -> tagService.deleteById(id));
     }
 
     @AfterAll
-    public void tierDown(){
+    public void tierDown() {
         id = null;
         tag = null;
         tagDao = null;
