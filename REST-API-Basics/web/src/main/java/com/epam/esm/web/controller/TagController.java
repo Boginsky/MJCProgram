@@ -38,7 +38,7 @@ public class TagController {
         return tagService.getRoute(tagId, tagName, giftCertificateId);
     }
 
-    @DeleteMapping(value = "/tagId")
+    @DeleteMapping(value = "/{tagId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteById(@PathVariable(name = "tagId") Long tagId) {
         tagService.deleteById(tagId);
@@ -50,7 +50,7 @@ public class TagController {
         tagService.create(tag);
     }
 
-    @PatchMapping(value = "/tagId")
+    @PatchMapping(value = "/{tagId}")
     @ResponseStatus(HttpStatus.OK)
     public void updateById(@PathVariable("tagId") Long id,
                            @RequestBody Tag tag) {
