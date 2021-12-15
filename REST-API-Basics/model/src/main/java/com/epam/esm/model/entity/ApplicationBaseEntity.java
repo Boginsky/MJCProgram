@@ -6,7 +6,7 @@ import java.util.Objects;
 
 public class ApplicationBaseEntity {
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private long id;
 
     public ApplicationBaseEntity() {

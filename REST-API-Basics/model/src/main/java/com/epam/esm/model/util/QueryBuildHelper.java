@@ -15,7 +15,7 @@ public class QueryBuildHelper {
     public String buildSortingQuery(List<String> sortColumns, List<String> orderTypes, List<String> filterBy) {
         StringBuilder stringBuilder = new StringBuilder(BLANK_FOR_GIFT_CERTIFICATE);
         buildFilteringQuery(stringBuilder, filterBy);
-        if(!sortColumns.isEmpty()){
+        if (!sortColumns.isEmpty()) {
             stringBuilder.append(" ORDER BY ");
             for (int i = 0; i < sortColumns.size(); i++) {
                 if (i != 0) {

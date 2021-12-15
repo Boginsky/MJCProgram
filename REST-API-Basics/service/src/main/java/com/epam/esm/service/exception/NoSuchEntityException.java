@@ -1,6 +1,6 @@
 package com.epam.esm.service.exception;
 
-public class NoSuchEntityException extends RuntimeException{
+public class NoSuchEntityException extends RuntimeException {
 
     public NoSuchEntityException() {
     }

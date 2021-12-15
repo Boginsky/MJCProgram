@@ -82,9 +82,9 @@ public class TagServiceImpl implements TagService {
     @Override
     public void updateNameById(Long id, Tag tag) {
         isPresent(id);
-        if(tag.getName() != null) {
+        if (tag.getName() != null) {
             tagDao.updateNameById(id, tag.getName());
-        }else {
+        } else {
             throw new InvalidEntityException("message.tagInvalid");
         }
     }

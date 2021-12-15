@@ -6,8 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,19 +28,19 @@ public class TagController {
         this.tagService = tagService;
     }
 
-    @GetMapping
+    @GetMapping(value = {"/{tagId}", ""})
     @ResponseStatus(HttpStatus.OK)
     public List<Tag> getAll(
-            @RequestParam(name = "tagId", required = false) Long tagId,
+            @PathVariable(name = "tagId", required = false) Long tagId,
             @RequestParam(name = "tagName", required = false) String tagName,
             @RequestParam(name = "giftCertificateId", required = false) Long giftCertificateId
     ) {
         return tagService.getRoute(tagId, tagName, giftCertificateId);
     }
 
-    @DeleteMapping
+    @DeleteMapping(value = "/tagId")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(@RequestParam(name = "tagId") Long tagId) {
+    public void deleteById(@PathVariable(name = "tagId") Long tagId) {
         tagService.deleteById(tagId);
     }
 
@@ -49,9 +50,9 @@ public class TagController {
         tagService.create(tag);
     }
 
-    @PutMapping
+    @PatchMapping(value = "/tagId")
     @ResponseStatus(HttpStatus.OK)
-    public void updateById(@RequestParam("tagId") Long id,
+    public void updateById(@PathVariable("tagId") Long id,
                            @RequestBody Tag tag) {
         tagService.updateNameById(id, tag);
     }

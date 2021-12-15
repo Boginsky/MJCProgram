@@ -43,7 +43,7 @@
             <artifactId>spring-jdbc</artifactId>
             <version>5.3.13</version>
         </dependency>
-        
+
     </dependencies>
 
     <build>

@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
+import java.util.stream.Collectors;
 
 @Service
 public class GiftCertificateServiceImpl implements GiftCertificateService {
@@ -43,29 +43,38 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    public List<GiftCertificate> getRoute(Long giftCertificateId) {
+    public List<GiftCertificateDto> getRoute(String tagName, List<String> sortColumns,
+                                             List<String> orderType, List<String> filterBy,
+                                             Long giftCertificateId, String allWithTags) {
         if (giftCertificateId != null) {
             return getById(giftCertificateId);
+        } else if (sortColumns != null || filterBy != null) {
+            return getAllWithSortingAndFiltering(sortColumns, orderType, filterBy);
+        } else if (tagName != null) {
+            return getAllByTagName(tagName);
+        } else if (allWithTags != null) {
+            return getAllWithTags();
         } else {
             return getAll();
         }
     }
 
     @Override
-    public List<GiftCertificateDto> getRouteWithTags(String tagName, List<String> sortColumns,
-                                                     List<String> orderType, List<String> filterBy) {
-        if (tagName != null) {
-            return getAllByTagName(tagName);
-        } else if (sortColumns != null || filterBy != null) {
-            return getAllWithSortingAndFiltering(sortColumns, orderType, filterBy);
-        } else {
-            return getAllWithTags();
-        }
+    public List<GiftCertificateDto> getAll() {
+        List<GiftCertificate> giftCertificateList = giftCertificateDao.getAll();
+        return giftCertificateList.stream()
+                .map(GiftCertificateDto::new)
+                .collect(Collectors.toList());
+
     }
 
     @Override
-    public List<GiftCertificate> getAll() {
-        return giftCertificateDao.getAll();
+    public List<GiftCertificateDto> getById(Long id) {
+        isPresentGiftCertificate(id);
+        GiftCertificate giftCertificate = giftCertificateDao.getById(id).get();
+        List<GiftCertificateDto> listOfGiftCertificate = new ArrayList();
+        listOfGiftCertificate.add(new GiftCertificateDto(giftCertificate));
+        return listOfGiftCertificate;
     }
 
     @Override
@@ -100,15 +109,6 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public void deleteById(Long id) {
         isPresentGiftCertificate(id);
         giftCertificateDao.deleteById(id);
-    }
-
-    @Override
-    public List<GiftCertificate> getById(Long id) {
-        isPresentGiftCertificate(id);
-        GiftCertificate giftCertificate = giftCertificateDao.getById(id).get();
-        List<GiftCertificate> listOfGiftCertificate = new ArrayList();
-        listOfGiftCertificate.add(giftCertificate);
-        return listOfGiftCertificate;
     }
 
     @Override
@@ -224,7 +224,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     private void updateCertificateTags(List<Tag> tagList, Long giftCertificateId) {
         for (Tag tag : tagList) {
             String tagName = tag.getName();
-            if(tagName != null) {
+            if (tagName != null) {
                 Optional<Tag> tagOptional = tagDao.getByName(tagName);
                 Tag fullTag = tagOptional.orElseGet(() -> createGiftCertificateTag(tag));
                 Long tagId = fullTag.getId();

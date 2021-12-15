@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.epam.esm.model.constant.Query.DELETE_TAG_BY_ID;
-import static com.epam.esm.model.constant.Query.DELETE_TAG_BY_NAME;
 import static com.epam.esm.model.constant.Query.FIND_TAG_BY_ID;
 import static com.epam.esm.model.constant.Query.FIND_TAG_BY_NAME;
 import static com.epam.esm.model.constant.Query.GET_ALL_TAGS;

@@ -1,6 +1,5 @@
 package com.epam.esm.service.service;
 
-import com.epam.esm.model.entity.GiftCertificate;
 import com.epam.esm.service.dto.GiftCertificateDto;
 
 import java.util.List;
@@ -9,16 +8,15 @@ public interface GiftCertificateService {
 
     void create(GiftCertificateDto giftCertificateDto);
 
-    List<GiftCertificate> getAll();
+    List<GiftCertificateDto> getAll();
 
-    List<GiftCertificate> getRoute(Long giftCertificateId);
-
-    List<GiftCertificateDto> getRouteWithTags(String tagName, List<String> sortColumns,
-                                              List<String> orderType, List<String> filterBy);
+    List<GiftCertificateDto> getRoute(String tagName, List<String> sortColumns,
+                                      List<String> orderType, List<String> filterBy,
+                                      Long giftCertificateId, String allWithTags);
 
     void deleteById(Long id);
 
-    List<GiftCertificate> getById(Long id);
+    List<GiftCertificateDto> getById(Long id);
 
     GiftCertificateDto updateById(Long giftCertificateId, GiftCertificateDto giftCertificateDto);
 

@@ -26,7 +26,6 @@ import static com.epam.esm.model.constant.ColumnName.GIFT_CERTIFICATE_PRICE;
 import static com.epam.esm.model.constant.Query.CREATE_GIFT_CERTIFICATE;
 import static com.epam.esm.model.constant.Query.CREATE_GIFT_CERTIFICATE_TAG_REFERENCE;
 import static com.epam.esm.model.constant.Query.DELETE_GIFT_CERTIFICATE_BY_ID;
-import static com.epam.esm.model.constant.Query.DELETE_GIFT_CERTIFICATE_BY_NAME;
 import static com.epam.esm.model.constant.Query.GET_ALL_GIFT_CERTIFICATES;
 import static com.epam.esm.model.constant.Query.GET_GIFT_CERTIFICATE_BY_ID;
 import static com.epam.esm.model.constant.Query.GET_GIFT_CERTIFICATE_BY_NAME;
@@ -61,8 +60,8 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     @Override
     public void create(GiftCertificate giftCertificate) {
         jdbcTemplate.update(CREATE_GIFT_CERTIFICATE, giftCertificate.getName()
-                , giftCertificate.getDescription(), giftCertificate.getPrice()
-                , giftCertificate.getDuration());
+                ,giftCertificate.getDescription(), giftCertificate.getPrice()
+                ,giftCertificate.getDuration());
     }
 
     @Override
@@ -108,7 +107,7 @@ public class GiftCertificateDaoImpl implements GiftCertificateDao {
     public List<GiftCertificate> getAllWithSortingAndFiltering(List<String> sortColumns,
                                                                List<String> orderType,
                                                                List<String> filterBy) {
-        String query = new QueryBuildHelper().buildSortingQuery(sortColumns,orderType,filterBy);
+        String query = new QueryBuildHelper().buildSortingQuery(sortColumns, orderType, filterBy);
         return jdbcTemplate.query(query, rowMapper);
     }
 

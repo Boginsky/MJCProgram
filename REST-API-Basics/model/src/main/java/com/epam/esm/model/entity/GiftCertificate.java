@@ -124,6 +124,7 @@ public class GiftCertificate extends ApplicationBaseEntity {
         sb.append('}');
         return sb.toString();
     }
+
     public static Builder builder() {
         return new Builder();
     }
