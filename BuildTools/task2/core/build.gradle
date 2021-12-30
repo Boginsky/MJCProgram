@@ -1,0 +1,21 @@
+plugins {
+    id 'java'
+}
+
+group 'by.boginsky'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    implementation files('E:/EPAM/HoweWork/EPAM/FirstModulLab/BuildTools/task1/build/libs/utils-1.3.5.jar')
+    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.10'
+}
+
+test {
+    useJUnitPlatform()
+}
