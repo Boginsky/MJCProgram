@@ -6,6 +6,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
@@ -15,9 +16,6 @@ import java.util.Optional;
 @NoArgsConstructor
 public class QueryBuildHelper {
 
-    private static final String BLANK_FOR_UPDATE_GIFT_CERTIFICATE_BY_ID = "UPDATE gift_certificate SET ";
-    private static final String BLANK_FOR_GIFT_CERTIFICATE = "SELECT id,name,description,price,duration,create_date,last_update_date FROM gift_certificate";
-    private static final String BLANK_FOR_GIFT_CERTIFICATE_WITH_MULTI_TAG_NAMES = "SELECT DISTINCT gift_certificate.id,gift_certificate.name,description, price, duration, create_date, last_update_date FROM gift_certificate JOIN gift_certificate_has_tag ON gift_certificate.id = gift_certificate_id JOIN tag ON tag_id = tag.id";
     private static final String NAME = "name";
     private static final String DESCRIPTION = "description";
 
@@ -70,4 +68,30 @@ public class QueryBuildHelper {
         }
         return predicateList;
     }
+
+    public <T> Predicate buildOrEqualPredicates(Path<T> root, String columnName, List<?> values) {
+        int counter = 0;
+        Predicate predicate = null;
+        for (Object value : values) {
+            Predicate currentPredicate = criteriaBuilder.equal(root.get(columnName), value);
+            if (counter++ == 0) {
+                predicate = currentPredicate;
+            } else {
+                predicate = criteriaBuilder.or(predicate, currentPredicate);
+            }
+        }
+        return predicate;
+    }
+
+    public Predicate buildAndPredicates(List<Predicate> predicates) {
+        if (predicates == null || predicates.isEmpty()) {
+            return null;
+        }
+        Predicate resultPredicate = predicates.get(0);
+        for (int i = 1; i < predicates.size(); i++) {
+            resultPredicate = criteriaBuilder.and(resultPredicate, predicates.get(i));
+        }
+        return resultPredicate;
+    }
+
 }

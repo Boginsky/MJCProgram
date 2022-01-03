@@ -2,6 +2,7 @@ package com.epam.esm.model.entity;
 
 import com.epam.esm.model.audit.EntityAuditListener;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
@@ -48,8 +49,9 @@ public class GiftCertificate extends ApplicationBaseEntity {
     @Column(name = "last_update_date", nullable = false)
     private ZonedDateTime lastUpdateDate;
 
+    @JsonIgnore
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "gift_certificate_has_tag",
+    @JoinTable(name = "gift_certificate_tag",
             joinColumns = @JoinColumn(name = "gift_certificate_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id")
     )

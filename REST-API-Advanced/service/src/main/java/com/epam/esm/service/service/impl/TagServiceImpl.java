@@ -7,6 +7,7 @@ import com.epam.esm.model.repository.UserRepository;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.dto.converter.DtoConverter;
 import com.epam.esm.service.exception.DuplicateEntityException;
+import com.epam.esm.service.exception.InvalidEntityException;
 import com.epam.esm.service.exception.InvalidParametersException;
 import com.epam.esm.service.exception.NoSuchEntityException;
 import com.epam.esm.service.service.TagService;
@@ -17,9 +18,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,6 +57,7 @@ public class TagServiceImpl implements TagService {
     @Override
     @Transactional
     public TagDto create(TagDto tagDto) {
+        validateFields(tagDto);
         Tag tag = tagDtoConverter.convertToEntity(tagDto);
         isExist(tag);
         tag = tagRepository.create(tag);
@@ -66,6 +73,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto update(TagDto tagDto) {
+        validateFields(tagDto);
         Tag tag = tagDtoConverter.convertToEntity(tagDto);
         tag = tagRepository.update(tag);
         return tagDtoConverter.convertToDto(tag);
@@ -123,8 +131,26 @@ public class TagServiceImpl implements TagService {
     private BestTag isPresentBestTag(Long userId) {
         Optional<BestTag> bestTagOptional = tagRepository.getHighestCostTag(userId);
         if (!bestTagOptional.isPresent()) {
-            throw new NoSuchEntityException("message.cantFindTagById");
+            throw new NoSuchEntityException("message.cantFindTagByUserId");
         }
         return bestTagOptional.get();
+    }
+
+    private void validateFields(TagDto tagDto) {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+        String name = tagDto.getName();
+        if (name != null) {
+            validateField(validator, "name", name);
+        }
+    }
+
+    private void validateField(Validator validator, String propertyName, Object value) {
+        Set<ConstraintViolation<TagDto>> violations = validator.validateValue(
+                TagDto.class, propertyName, value);
+        if (!violations.isEmpty()) {
+            String message = violations.iterator().next().getMessage();
+            throw new InvalidEntityException(message);
+        }
     }
 }

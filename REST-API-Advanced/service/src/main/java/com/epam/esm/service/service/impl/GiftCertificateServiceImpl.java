@@ -11,7 +11,6 @@ import com.epam.esm.service.exception.InvalidEntityException;
 import com.epam.esm.service.exception.InvalidParametersException;
 import com.epam.esm.service.exception.NoSuchEntityException;
 import com.epam.esm.service.service.GiftCertificateService;
-import com.epam.esm.service.validator.impl.GiftCertificateValidatorImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,18 +37,15 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     private final TagRepository tagRepository;
     private final GiftCertificateRepository giftCertificateRepository;
     private final DtoConverter<Tag, TagDto> tagDtoConverter;
-    private final GiftCertificateValidatorImpl giftCertificateValidator;
     private final DtoConverter<GiftCertificate, GiftCertificateDto> giftCertificateDtoConverter;
 
     @Autowired
     public GiftCertificateServiceImpl(GiftCertificateRepository giftCertificateRepository, TagRepository tagRepository,
-                                      GiftCertificateValidatorImpl giftCertificateValidator,
                                       DtoConverter<GiftCertificate,
                                               GiftCertificateDto> giftCertificateDtoConverter,
                                       DtoConverter<Tag, TagDto> tagDtoConverter) {
         this.giftCertificateRepository = giftCertificateRepository;
         this.tagRepository = tagRepository;
-        this.giftCertificateValidator = giftCertificateValidator;
         this.giftCertificateDtoConverter = giftCertificateDtoConverter;
         this.tagDtoConverter = tagDtoConverter;
 
@@ -88,6 +84,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     @Transactional
     public GiftCertificateDto create(GiftCertificateDto giftCertificateDto) {
+        validateFields(giftCertificateDto);
         Set<TagDto> tagSet = new HashSet<>();
         if (giftCertificateDto.getCertificateTags() != null) {
             for (TagDto tag : giftCertificateDto.getCertificateTags()) {
@@ -110,6 +107,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Transactional
     public GiftCertificateDto updateById(Long giftCertificateId, GiftCertificateDto giftCertificateDto) {
         GiftCertificate sourceCertificate = isPresent(giftCertificateId);
+        validateFields(giftCertificateDto);
         setUpdatedFields(sourceCertificate, giftCertificateDto);
         if (giftCertificateDto.getCertificateTags() != null) {
             Set<TagDto> tags = giftCertificateDto.getCertificateTags();

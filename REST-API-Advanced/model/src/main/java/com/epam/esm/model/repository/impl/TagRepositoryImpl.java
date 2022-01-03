@@ -8,21 +8,15 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import javax.persistence.NamedNativeQuery;
 import javax.persistence.Query;
 import java.util.Optional;
 
+import static com.epam.esm.model.query.Query.GET_MOST_WILDLY_USED_TAG_WITH_HIGHEST_COST;
+
 @Repository
 @Transactional
-@NamedNativeQuery(name = "GET_MOST_WILDLY_USED_TAG_WITH_HIGHEST_COST",
-        query = "SELECT tag.id, tag.name, MAX(orders.total_price) " +
-                "as 'highestCost' FROM orders JOIN gift_certificate " +
-                "ON orders.gift_certificate_id = gift_certificate.id " +
-                "JOIN gift_certificate_has_tag " +
-                "ON gift_certificate.id = gift_certificate_has_tag.gift_certificate_id " +
-                "JOIN tag ON tag_id = tag.id GROUP BY tag.id " +
-                "ORDER BY COUNT(tag.id) DESC, MAX(orders.total_price) DESC LIMIT 1")
 public class TagRepositoryImpl extends AbstractRepository<Tag> implements TagRepository {
+    private static final String BEST_TAG_MAPPING_NAME = "BestTagMapping";
 
     public TagRepositoryImpl(EntityManager entityManager) {
         super(entityManager, Tag.class);
@@ -35,8 +29,15 @@ public class TagRepositoryImpl extends AbstractRepository<Tag> implements TagRep
 
     @Override
     public Optional<BestTag> getHighestCostTag(Long userId) {
-        Query query = entityManager.createNamedQuery("GET_MOST_WILDLY_USED_TAG_WITH_HIGHEST_COST", BestTag.class);
+        Query query = entityManager.createNativeQuery(GET_MOST_WILDLY_USED_TAG_WITH_HIGHEST_COST, BEST_TAG_MAPPING_NAME);
         query.setParameter("userId", userId);
         return criteriaBuilderHelper.getOptionalQueryResult(query);
     }
 }
+
+
+
+
+
+
+

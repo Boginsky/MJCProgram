@@ -9,10 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.persistence.criteria.SetJoin;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -44,15 +45,19 @@ public class GiftCertificateRepositoryImpl extends AbstractRepository<GiftCertif
     public List<GiftCertificate> getAllByTagNames(List<String> tagNames) {
         CriteriaQuery<GiftCertificate> query = criteriaBuilder.createQuery(GiftCertificate.class);
         Root<GiftCertificate> root = query.from(GiftCertificate.class);
-        SetJoin<GiftCertificate, Tag> join = root.joinSet("tags");
-        query.select(join.getParent()).distinct(true);
-        Predicate[] predicates = new Predicate[tagNames.size()];
-        for (int i = 0; i < tagNames.size(); i++) {
-            Predicate predicate = criteriaBuilder.like(join.get("name"), tagNames.get(i).concat("%"));
-            predicates[i] = predicate;
+        query.select(root);
+        Join<GiftCertificate, Tag> joinTag = root.join("tags");
+        Predicate predicate = criteriaBuilderHelper.buildOrEqualPredicates(joinTag, "name", tagNames);
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(predicate);
+        if (!predicates.isEmpty()) {
+            query.where(criteriaBuilderHelper.buildAndPredicates(predicates));
+            if (tagNames != null) {
+                query.groupBy(root.get("id"));
+                query.having(criteriaBuilder.greaterThanOrEqualTo(criteriaBuilder.count(root), (long) tagNames.size()));
+            }
         }
-        query.where(predicates);
         return entityManager.createQuery(query).getResultList();
     }
-
 }
+

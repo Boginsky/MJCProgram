@@ -1,6 +1,7 @@
 package com.epam.esm.model.entity;
 
 import com.epam.esm.model.audit.EntityAuditListener;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
@@ -26,8 +27,9 @@ public class Tag extends ApplicationBaseEntity {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
+    @JsonIgnore
     @ManyToMany()
-    @JoinTable(name = "gift_certificate_has_tag",
+    @JoinTable(name = "gift_certificate_tag",
             joinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "gift_certificate_id", referencedColumnName = "id")
     )

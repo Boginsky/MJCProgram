@@ -8,6 +8,7 @@ import com.epam.esm.model.repository.OrderRepository;
 import com.epam.esm.model.repository.UserRepository;
 import com.epam.esm.service.dto.OrderDto;
 import com.epam.esm.service.dto.converter.DtoConverter;
+import com.epam.esm.service.exception.InvalidEntityException;
 import com.epam.esm.service.exception.InvalidParametersException;
 import com.epam.esm.service.exception.NoSuchEntityException;
 import com.epam.esm.service.service.OrderService;
@@ -18,9 +19,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,6 +58,8 @@ public class OrderServiceImpl implements OrderService {
                 .giftCertificate(giftCertificate)
                 .totalPrice(giftCertificate.getPrice())
                 .build();
+        OrderDto orderDto = orderDtoConverter.convertToDto(order);
+        validateFields(orderDto);
         order = createOrder(order);
         return orderDtoConverter.convertToDto(order);
     }
@@ -133,6 +142,24 @@ public class OrderServiceImpl implements OrderService {
             throw new NoSuchEntityException("message.cantFindUser");
         } else {
             return userOptional.get();
+        }
+    }
+
+    private void validateFields(OrderDto orderDto) {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+        BigDecimal totalPrice = orderDto.getTotalPrice();
+        if (totalPrice != null) {
+            validateField(validator, "totalPrice", totalPrice);
+        }
+    }
+
+    private void validateField(Validator validator, String propertyName, Object value) {
+        Set<ConstraintViolation<OrderDto>> violations = validator.validateValue(
+                OrderDto.class, propertyName, value);
+        if (!violations.isEmpty()) {
+            String message = violations.iterator().next().getMessage();
+            throw new InvalidEntityException(message);
         }
     }
 }

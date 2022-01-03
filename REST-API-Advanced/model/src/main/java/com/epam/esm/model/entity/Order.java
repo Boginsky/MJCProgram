@@ -1,6 +1,7 @@
 package com.epam.esm.model.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
@@ -27,9 +28,11 @@ public class Order extends ApplicationBaseEntity {
     @Column(name = "date_of_purchase", nullable = false)
     private ZonedDateTime dateOfPurchase;
 
+    @JsonIgnore
     @ManyToOne(targetEntity = User.class)
     private User user;
 
+    @JsonIgnore
     @ManyToOne(targetEntity = GiftCertificate.class)
     private GiftCertificate giftCertificate;
 

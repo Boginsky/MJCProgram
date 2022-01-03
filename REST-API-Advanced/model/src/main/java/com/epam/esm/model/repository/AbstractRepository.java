@@ -36,10 +36,8 @@ public abstract class AbstractRepository<T extends ApplicationBaseEntity> implem
     public T create(T entity) {
         if (entity.getId() == null) {
             entityManager.persist(entity);
-        } else {
-            entityManager.merge(entity);
         }
-        return entity;
+        return entityManager.merge(entity);
     }
 
     @Override
