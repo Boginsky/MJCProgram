@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.HashSet;
 import java.util.Set;
 
-@Component
+@Component("giftCertificateConverter")
 public class GiftCertificateConverter implements DtoConverter<GiftCertificate, GiftCertificateDto> {
 
     private final TagDtoConverter tagDtoConverter;
