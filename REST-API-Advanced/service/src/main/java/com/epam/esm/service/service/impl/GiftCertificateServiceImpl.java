@@ -7,10 +7,10 @@ import com.epam.esm.model.repository.TagRepository;
 import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.dto.converter.DtoConverter;
-import com.epam.esm.service.exception.InvalidEntityException;
 import com.epam.esm.service.exception.InvalidParametersException;
 import com.epam.esm.service.exception.NoSuchEntityException;
 import com.epam.esm.service.service.GiftCertificateService;
+import com.epam.esm.service.validator.GiftCertificateValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
@@ -19,10 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -41,17 +37,17 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     private final DtoConverter<Tag, TagDto> tagDtoConverter;
     @Qualifier("giftCertificateConverter")
     private final DtoConverter<GiftCertificate, GiftCertificateDto> giftCertificateDtoConverter;
+    private final GiftCertificateValidator customValidator;
 
     @Autowired
     public GiftCertificateServiceImpl(GiftCertificateRepository giftCertificateRepository, TagRepository tagRepository,
-                                      DtoConverter<GiftCertificate,
-                                              GiftCertificateDto> giftCertificateDtoConverter,
-                                      DtoConverter<Tag, TagDto> tagDtoConverter) {
+                                      DtoConverter<GiftCertificate, GiftCertificateDto> giftCertificateDtoConverter,
+                                      DtoConverter<Tag, TagDto> tagDtoConverter, GiftCertificateValidator customValidator) {
         this.giftCertificateRepository = giftCertificateRepository;
         this.tagRepository = tagRepository;
         this.giftCertificateDtoConverter = giftCertificateDtoConverter;
         this.tagDtoConverter = tagDtoConverter;
-
+        this.customValidator = customValidator;
     }
 
     @Override
@@ -202,61 +198,10 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     private void validateFields(GiftCertificateDto giftCertificateDto) {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
-        validateName(giftCertificateDto, validator);
-        validateDescription(giftCertificateDto, validator);
-        validatePrice(giftCertificateDto, validator);
-        validateDuration(giftCertificateDto, validator);
-        validateTags(giftCertificateDto, validator);
-    }
-
-    private void validateTags(GiftCertificateDto giftCertificateDto, Validator validator) {
-        Set<TagDto> dtoTags = giftCertificateDto.getCertificateTags();
-        if (dtoTags != null) {
-            dtoTags.forEach(tag -> {
-                if (!validator.validate(tag).isEmpty()) {
-                    throw new InvalidEntityException("tag.invalid");
-                }
-            });
-        }
-    }
-
-    private void validateDuration(GiftCertificateDto giftCertificateDto, Validator validator) {
-        int duration = giftCertificateDto.getDuration();
-        if (duration != 0) {
-            validateField(validator, "duration", duration);
-        }
-    }
-
-    private void validatePrice(GiftCertificateDto giftCertificateDto, Validator validator) {
-        BigDecimal price = giftCertificateDto.getPrice();
-        if (price != null) {
-            validateField(validator, "price", price);
-        }
-    }
-
-
-    private void validateDescription(GiftCertificateDto giftCertificateDto, Validator validator) {
-        String description = giftCertificateDto.getDescription();
-        if (description != null) {
-            validateField(validator, "description", description);
-        }
-    }
-
-    private void validateName(GiftCertificateDto giftCertificateDto, Validator validator) {
-        String name = giftCertificateDto.getName();
-        if (name != null) {
-            validateField(validator, "name", name);
-        }
-    }
-
-    private void validateField(Validator validator, String propertyName, Object value) {
-        Set<ConstraintViolation<GiftCertificateDto>> violations = validator.validateValue(
-                GiftCertificateDto.class, propertyName, value);
-        if (!violations.isEmpty()) {
-            String message = violations.iterator().next().getMessage();
-            throw new InvalidEntityException(message);
-        }
+        customValidator.validateName(giftCertificateDto);
+        customValidator.validateDescription(giftCertificateDto);
+        customValidator.validatePrice(giftCertificateDto);
+        customValidator.validateDuration(giftCertificateDto);
+        customValidator.validateTags(giftCertificateDto);
     }
 }

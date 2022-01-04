@@ -35,11 +35,11 @@ public class TagController {
     @GetMapping(value = {"/{id}", ""})
     @ResponseStatus(HttpStatus.OK)
     public List<TagDto> getAll(
-            @PathVariable(name = "id", required = false) Long tagId,
+            @PathVariable(name = "id", required = false) Long id,
             @RequestParam(value = "page", defaultValue = "0", required = false) Integer page,
             @RequestParam(value = "size", defaultValue = "10", required = false) Integer size
     ) {
-        List<TagDto> tagList = tagService.getRoute(tagId, page, size);
+        List<TagDto> tagList = tagService.getRoute(id, page, size);
         tagList.forEach(tagLinkAdder::addLinks);
         return tagList;
     }
@@ -53,8 +53,8 @@ public class TagController {
 
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(@PathVariable(name = "id") Long tagId) {
-        tagService.deleteById(tagId);
+    public void deleteById(@PathVariable(name = "id") Long id) {
+        tagService.deleteById(id);
     }
 
     @PostMapping
@@ -65,9 +65,9 @@ public class TagController {
         return tagDto;
     }
 
-    @PatchMapping(value = "/{tag-id}")
+    @PatchMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public TagDto updateById(@PathVariable("tag-id") Long id,
+    public TagDto updateById(@PathVariable("id") Long id,
                              @RequestBody TagDto tagDto) {
         tagDto.setId(id);
         tagDto = tagService.update(tagDto);

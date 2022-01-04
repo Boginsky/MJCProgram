@@ -34,7 +34,7 @@ public class GiftCertificateController {
     @GetMapping(value = {"/{id}", ""})
     @ResponseStatus(HttpStatus.OK)
     public List<GiftCertificateDto> getAllWithTags(
-            @PathVariable(name = "id", required = false) Long giftCertificateId,
+            @PathVariable(name = "id", required = false) Long id,
             @RequestParam(name = "tag-name", required = false) List<String> tagName,
             @RequestParam(name = "sort", required = false) List<String> sortColumns,
             @RequestParam(name = "order", required = false) List<String> orderType,
@@ -43,8 +43,7 @@ public class GiftCertificateController {
             @RequestParam(value = "size", defaultValue = "10", required = false) Integer size
     ) {
         List<GiftCertificateDto> giftCertificateDtoList = giftCertificateService.getRoute(tagName, sortColumns,
-                orderType, filterBy,
-                giftCertificateId,
+                orderType, filterBy, id,
                 page, size);
         giftCertificateDtoList.forEach(giftCertificateDtoLinkAdder::addLinks);
         return giftCertificateDtoList;

@@ -7,10 +7,10 @@ import com.epam.esm.model.repository.UserRepository;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.dto.converter.DtoConverter;
 import com.epam.esm.service.exception.DuplicateEntityException;
-import com.epam.esm.service.exception.InvalidEntityException;
 import com.epam.esm.service.exception.InvalidParametersException;
 import com.epam.esm.service.exception.NoSuchEntityException;
 import com.epam.esm.service.service.TagService;
+import com.epam.esm.service.validator.TagValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
@@ -19,14 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,16 +30,17 @@ public class TagServiceImpl implements TagService {
 
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
-
     @Qualifier("tagDtoConverter")
     private final DtoConverter<Tag, TagDto> tagDtoConverter;
+    private final TagValidator tagTagValidator;
 
     @Autowired
     public TagServiceImpl(TagRepository tagRepository, DtoConverter<Tag, TagDto> tagDtoConverter,
-                          UserRepository userRepository) {
+                          UserRepository userRepository, TagValidator tagTagValidator) {
         this.userRepository = userRepository;
         this.tagRepository = tagRepository;
         this.tagDtoConverter = tagDtoConverter;
+        this.tagTagValidator = tagTagValidator;
     }
 
     @Override
@@ -59,7 +55,7 @@ public class TagServiceImpl implements TagService {
     @Override
     @Transactional
     public TagDto create(TagDto tagDto) {
-        validateFields(tagDto);
+        tagTagValidator.validateTagName(tagDto);
         Tag tag = tagDtoConverter.convertToEntity(tagDto);
         isExist(tag);
         tag = tagRepository.create(tag);
@@ -75,7 +71,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto update(TagDto tagDto) {
-        validateFields(tagDto);
+        tagTagValidator.validateTagName(tagDto);
         Tag tag = tagDtoConverter.convertToEntity(tagDto);
         tag = tagRepository.update(tag);
         return tagDtoConverter.convertToDto(tag);
@@ -136,23 +132,5 @@ public class TagServiceImpl implements TagService {
             throw new NoSuchEntityException("message.tag.missing");
         }
         return bestTagOptional.get();
-    }
-
-    private void validateFields(TagDto tagDto) {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
-        String name = tagDto.getName();
-        if (name != null) {
-            validateField(validator, "name", name);
-        }
-    }
-
-    private void validateField(Validator validator, String propertyName, Object value) {
-        Set<ConstraintViolation<TagDto>> violations = validator.validateValue(
-                TagDto.class, propertyName, value);
-        if (!violations.isEmpty()) {
-            String message = violations.iterator().next().getMessage();
-            throw new InvalidEntityException(message);
-        }
     }
 }

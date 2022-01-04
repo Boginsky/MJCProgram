@@ -8,6 +8,7 @@ import com.epam.esm.service.exception.InvalidEntityException;
 import com.epam.esm.service.exception.InvalidParametersException;
 import com.epam.esm.service.exception.NoSuchEntityException;
 import com.epam.esm.service.service.UserService;
+import com.epam.esm.service.validator.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
@@ -32,12 +33,14 @@ public class UserServiceImpl implements UserService {
     @Qualifier("giftCertificateConverter")
     private final DtoConverter<User, UserDto> userDtoConverter;
     private final UserRepository userRepository;
+    private final UserValidator userValidator;
 
     @Autowired
     public UserServiceImpl(DtoConverter<User, UserDto> userDtoConverter,
-                           UserRepository userRepository) {
+                           UserRepository userRepository, UserValidator userValidator) {
         this.userDtoConverter = userDtoConverter;
         this.userRepository = userRepository;
+        this.userValidator = userValidator;
     }
 
     @Override
@@ -84,33 +87,9 @@ public class UserServiceImpl implements UserService {
     }
 
     private void validateFields(UserDto userDto) {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
-        validateFirstName(userDto, validator);
-        validateLastName(userDto, validator);
+        userValidator.validateFirstName(userDto);
+        userValidator.validateLastName(userDto);
     }
 
-    private void validateLastName(UserDto userDto, Validator validator) {
-        String lastName = userDto.getLastName();
-        if (lastName != null) {
-            validateField(validator, "lastName", lastName);
-        }
-    }
-
-    private void validateFirstName(UserDto userDto, Validator validator) {
-        String firstName = userDto.getFirstName();
-        if (firstName != null) {
-            validateField(validator, "firstName", firstName);
-        }
-    }
-
-    private void validateField(Validator validator, String propertyName, Object value) {
-        Set<ConstraintViolation<UserDto>> violations = validator.validateValue(
-                UserDto.class, propertyName, value);
-        if (!violations.isEmpty()) {
-            String message = violations.iterator().next().getMessage();
-            throw new InvalidEntityException(message);
-        }
-    }
 }
 

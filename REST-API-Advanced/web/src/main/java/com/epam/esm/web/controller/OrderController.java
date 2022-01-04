@@ -30,21 +30,21 @@ public class OrderController {
 
     @PostMapping(value = "/{userId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public OrderDto create(@PathVariable(name = "userId", required = false) Long userId,
-                           @RequestParam(value = "gift-certificate-id") Long giftCertificateIds
+    public OrderDto create(@PathVariable(name = "userId", required = false) Long userId, // FIXME: 05.01.2022 may it should be made a RequestParam instead of PathVariable
+                           @RequestParam(value = "gift-certificate-id") Long giftCertificateId
     ) {
-        OrderDto orderDto = orderService.create(userId, giftCertificateIds);
+        OrderDto orderDto = orderService.create(userId, giftCertificateId);
         orderLinkAdder.addLinks(orderDto);
         return orderDto;
     }
 
-    @GetMapping(value = {"/{orderId}", ""})
+    @GetMapping(value = {"/{id}", ""})
     @ResponseStatus(HttpStatus.OK)
-    public List<OrderDto> getAll(@PathVariable(name = "orderId", required = false) Long orderId,
+    public List<OrderDto> getAll(@PathVariable(name = "id", required = false) Long id,
                                  @RequestParam(name = "userId", required = false) Long userId,
                                  @RequestParam(value = "page", defaultValue = "0", required = false) Integer page,
                                  @RequestParam(value = "size", defaultValue = "10", required = false) Integer size) {
-        List<OrderDto> orderDtoList = orderService.getRoute(userId, orderId, page, size);
+        List<OrderDto> orderDtoList = orderService.getRoute(userId, id, page, size);
         orderDtoList.forEach(orderLinkAdder::addLinks);
         return orderDtoList;
     }

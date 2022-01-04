@@ -32,11 +32,11 @@ public class UserController {
     @GetMapping(value = {"/{id}", ""})
     @ResponseStatus(HttpStatus.OK)
     public List<UserDto> getAll(
-            @PathVariable(name = "id", required = false) Long userId,
+            @PathVariable(name = "id", required = false) Long id,
             @RequestParam(value = "page", defaultValue = "0", required = false) Integer page,
             @RequestParam(value = "size", defaultValue = "10", required = false) Integer size
     ) {
-        List<UserDto> userDtoList = userService.getRoute(userId, page, size);
+        List<UserDto> userDtoList = userService.getRoute(id, page, size);
         userDtoList.forEach(userLinkAdder::addLinks);
         return userDtoList;
     }
