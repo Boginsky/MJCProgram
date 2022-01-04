@@ -1,6 +1,7 @@
 package com.epam.esm.service.dto;
 
 import com.epam.esm.model.entity.GiftCertificate;
+import com.epam.esm.model.entity.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AccessLevel;
@@ -25,6 +26,9 @@ public class OrderDto extends RepresentationModel<OrderDto> {
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private GiftCertificate giftCertificate;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private User user;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @DecimalMin(value = "0.1", inclusive = false, message = "message.order.price.invalid")

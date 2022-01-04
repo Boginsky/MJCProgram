@@ -13,6 +13,7 @@ import com.epam.esm.service.exception.InvalidParametersException;
 import com.epam.esm.service.exception.NoSuchEntityException;
 import com.epam.esm.service.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final GiftCertificateRepository giftCertificateRepository;
     private final UserRepository userRepository;
+    @Qualifier("orderDtoConverter")
     private final DtoConverter<Order, OrderDto> orderDtoConverter;
 
     @Autowired
@@ -96,6 +98,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<OrderDto> getAllByUserId(Long userId, Integer page, Integer size) {
         Pageable pageable = getPageable(page, size);
+        isPresentUser(userId);
         List<Order> orderList = orderRepository.getAllByUserId(userId, pageable);
         return orderList.stream()
                 .map(orderDtoConverter::convertToDto)
@@ -114,17 +117,7 @@ public class OrderServiceImpl implements OrderService {
 
 
     private Order createOrder(Order order) {
-        order = orderRepository.create(order);
-        return isPresent(order.getId());
-    }
-
-    private Order isPresent(Long id) {
-        Optional<Order> orderOptional = orderRepository.getByField("id", id);
-        if (!orderOptional.isPresent()) {
-            throw new NoSuchEntityException("message.cantFindOrder");
-        } else {
-            return orderOptional.get();
-        }
+        return  orderRepository.create(order);
     }
 
     private GiftCertificate isPresentGiftCertificate(Long giftCertificateId) {

@@ -5,7 +5,7 @@ import com.epam.esm.service.dto.OrderDto;
 import com.epam.esm.service.dto.converter.DtoConverter;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("orderDtoConverter")
 public class OrderDtoConverter implements DtoConverter<Order, OrderDto> {
 
     @Override
@@ -14,6 +14,7 @@ public class OrderDtoConverter implements DtoConverter<Order, OrderDto> {
                 .id(dto.getId())
                 .giftCertificate(dto.getGiftCertificate())
                 .totalPrice(dto.getTotalPrice())
+                .user(dto.getUser())
                 .dateOfPurchase(dto.getDateOfPurchase())
                 .build();
     }
@@ -24,6 +25,7 @@ public class OrderDtoConverter implements DtoConverter<Order, OrderDto> {
                 .id(entity.getId())
                 .giftCertificate(entity.getGiftCertificate())
                 .totalPrice(entity.getTotalPrice())
+                .user(entity.getUser())
                 .dateOfPurchase(entity.getDateOfPurchase())
                 .build();
     }

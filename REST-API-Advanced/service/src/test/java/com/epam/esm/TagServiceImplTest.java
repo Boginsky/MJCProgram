@@ -24,7 +24,6 @@ import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -124,7 +123,7 @@ public class TagServiceImplTest {
         when(userRepository.getByField("id", id)).thenReturn(Optional.of(user));
         when(tagRepository.getHighestCostTag(id)).thenReturn(Optional.of(bestTag));
         tagService.getHighestCostTag(id);
-        verify(tagRepository).getHighestCostTag(eq(id));
+        verify(tagRepository).getHighestCostTag(id);
     }
 
     @Test(expected = NoSuchEntityException.class)
@@ -139,10 +138,11 @@ public class TagServiceImplTest {
         id = null;
         name = null;
         tag = null;
+        totalPrice = null;
         tagDto = null;
+        bestTag = null;
+        user = null;
         defaultPage = null;
-        ;
         defaultPageSize = null;
     }
-
 }
