@@ -23,7 +23,7 @@ public class TagDto extends RepresentationModel<TagDto> {
     private Long id;
 
     @NotNull(message = "message.entity.data.missing")
-    @Size(min = 1, max = 60, message = "message.tagInvalid")
+    @Size(min = 1, max = 60, message = "message.tag.invalid")
     private String name;
 
 }

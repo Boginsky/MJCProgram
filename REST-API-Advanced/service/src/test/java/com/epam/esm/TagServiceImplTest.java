@@ -35,7 +35,6 @@ public class TagServiceImplTest {
     private String name;
     private Tag tag;
     private BestTag bestTag;
-    private BigDecimal totalPrice;
     private TagDto tagDto;
     private User user;
     private Integer defaultPage;
@@ -57,11 +56,17 @@ public class TagServiceImplTest {
     public void setUp() {
         id = 1L;
         name = "tagName";
-        totalPrice = BigDecimal.TEN;
-        tag = new Tag(id, name);
-        user = new User(id, name, name);
+        tag = Tag.builder()
+                .id(id)
+                .name(name)
+                .build();
+        user = User.builder()
+                .id(id)
+                .firstName(name)
+                .lastName(name)
+                .build();
         tagDto = new TagDto(id, name);
-        bestTag = new BestTag(id, name, totalPrice);
+        bestTag = new BestTag(id, name, BigDecimal.TEN);
         defaultPage = 0;
         defaultPageSize = 10;
     }
@@ -138,7 +143,6 @@ public class TagServiceImplTest {
         id = null;
         name = null;
         tag = null;
-        totalPrice = null;
         tagDto = null;
         bestTag = null;
         user = null;

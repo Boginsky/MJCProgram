@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
     public List<UserDto> getById(Long userId) {
         Optional<User> userOptional = userRepository.getByField("id", userId);
         if (!userOptional.isPresent()) {
-            throw new NoSuchEntityException("message.cantFindUser");
+            throw new NoSuchEntityException("message.user.missing");
         }
         List<UserDto> userDtoList = new ArrayList<>();
         UserDto userDto = userDtoConverter.convertToDto(userOptional.get());
@@ -86,13 +86,21 @@ public class UserServiceImpl implements UserService {
     private void validateFields(UserDto userDto) {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
-        String firstName = userDto.getFirstName();
-        if (firstName != null) {
-            validateField(validator, "firstName", firstName);
-        }
+        validateFirstName(userDto, validator);
+        validateLastName(userDto, validator);
+    }
+
+    private void validateLastName(UserDto userDto, Validator validator) {
         String lastName = userDto.getLastName();
         if (lastName != null) {
             validateField(validator, "lastName", lastName);
+        }
+    }
+
+    private void validateFirstName(UserDto userDto, Validator validator) {
+        String firstName = userDto.getFirstName();
+        if (firstName != null) {
+            validateField(validator, "firstName", firstName);
         }
     }
 

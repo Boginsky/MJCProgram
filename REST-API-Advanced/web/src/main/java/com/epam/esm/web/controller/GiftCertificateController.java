@@ -31,10 +31,10 @@ public class GiftCertificateController {
         this.giftCertificateDtoLinkAdder = giftCertificateDtoLinkAdder;
     }
 
-    @GetMapping(value = {"/{gift-certificate-id}", ""})
+    @GetMapping(value = {"/{id}", ""})
     @ResponseStatus(HttpStatus.OK)
     public List<GiftCertificateDto> getAllWithTags(
-            @PathVariable(name = "gift-certificate-id", required = false) Long giftCertificateId,
+            @PathVariable(name = "id", required = false) Long giftCertificateId,
             @RequestParam(name = "tag-name", required = false) List<String> tagName,
             @RequestParam(name = "sort", required = false) List<String> sortColumns,
             @RequestParam(name = "order", required = false) List<String> orderType,
@@ -50,18 +50,18 @@ public class GiftCertificateController {
         return giftCertificateDtoList;
     }
 
-    @PatchMapping(value = "/{gift-certificate-id}")
+    @PatchMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public GiftCertificateDto updateById(@PathVariable("gift-certificate-id") Long id,
+    public GiftCertificateDto updateById(@PathVariable("id") Long id,
                                          @RequestBody GiftCertificateDto requestDto) {
         GiftCertificateDto giftCertificateDto = giftCertificateService.updateById(id, requestDto);
         giftCertificateDtoLinkAdder.addLinks(giftCertificateDto);
         return giftCertificateDto;
     }
 
-    @DeleteMapping(value = "/{gift-certificate-id}")
+    @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(@PathVariable("gift-certificate-id") Long id) {
+    public void deleteById(@PathVariable("id") Long id) {
         giftCertificateService.deleteById(id);
     }
 

@@ -139,7 +139,6 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     public List<GiftCertificateDto> getAllWithSortingAndFiltering(List<String> sortColumns,
                                                                   List<String> orderType,
                                                                   List<String> filterBy) {
-        List<GiftCertificateDto> giftCertificateDtoList = new ArrayList<>();
         if (sortColumns == null) {
             sortColumns = new ArrayList<>();
         }
@@ -150,10 +149,9 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             filterBy = new ArrayList<>();
         }
         List<GiftCertificate> giftCertificateList = giftCertificateRepository.getAllWithSortingAndFiltering(sortColumns, orderType, filterBy);
-        for (GiftCertificate giftCertificate : giftCertificateList) {
-            giftCertificateDtoList.add(giftCertificateDtoConverter.convertToDto(giftCertificate));
-        }
-        return giftCertificateDtoList;
+        return giftCertificateList.stream()
+                .map(giftCertificateDtoConverter::convertToDto)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -167,7 +165,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     private GiftCertificate isPresent(Long id) {
         Optional<GiftCertificate> giftCertificateOptional = giftCertificateRepository.getByField("id", id);
         if (!giftCertificateOptional.isPresent()) {
-            throw new NoSuchEntityException("message.notFound");
+            throw new NoSuchEntityException("message.certificate.missing");
         }
         return giftCertificateOptional.get();
     }
@@ -206,22 +204,14 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     private void validateFields(GiftCertificateDto giftCertificateDto) {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         Validator validator = factory.getValidator();
-        String name = giftCertificateDto.getName();
-        if (name != null) {
-            validateField(validator, "name", name);
-        }
-        String description = giftCertificateDto.getDescription();
-        if (description != null) {
-            validateField(validator, "description", description);
-        }
-        BigDecimal price = giftCertificateDto.getPrice();
-        if (price != null) {
-            validateField(validator, "price", price);
-        }
-        int duration = giftCertificateDto.getDuration();
-        if (duration != 0) {
-            validateField(validator, "duration", duration);
-        }
+        validateName(giftCertificateDto, validator);
+        validateDescription(giftCertificateDto, validator);
+        validatePrice(giftCertificateDto, validator);
+        validateDuration(giftCertificateDto, validator);
+        validateTags(giftCertificateDto, validator);
+    }
+
+    private void validateTags(GiftCertificateDto giftCertificateDto, Validator validator) {
         Set<TagDto> dtoTags = giftCertificateDto.getCertificateTags();
         if (dtoTags != null) {
             dtoTags.forEach(tag -> {
@@ -229,6 +219,35 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                     throw new InvalidEntityException("tag.invalid");
                 }
             });
+        }
+    }
+
+    private void validateDuration(GiftCertificateDto giftCertificateDto, Validator validator) {
+        int duration = giftCertificateDto.getDuration();
+        if (duration != 0) {
+            validateField(validator, "duration", duration);
+        }
+    }
+
+    private void validatePrice(GiftCertificateDto giftCertificateDto, Validator validator) {
+        BigDecimal price = giftCertificateDto.getPrice();
+        if (price != null) {
+            validateField(validator, "price", price);
+        }
+    }
+
+
+    private void validateDescription(GiftCertificateDto giftCertificateDto, Validator validator) {
+        String description = giftCertificateDto.getDescription();
+        if (description != null) {
+            validateField(validator, "description", description);
+        }
+    }
+
+    private void validateName(GiftCertificateDto giftCertificateDto, Validator validator) {
+        String name = giftCertificateDto.getName();
+        if (name != null) {
+            validateField(validator, "name", name);
         }
     }
 

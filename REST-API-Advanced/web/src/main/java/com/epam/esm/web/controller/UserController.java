@@ -29,10 +29,10 @@ public class UserController {
         this.userLinkAdder = userLinkAdder;
     }
 
-    @GetMapping(value = {"/{user-id}", ""})
+    @GetMapping(value = {"/{id}", ""})
     @ResponseStatus(HttpStatus.OK)
     public List<UserDto> getAll(
-            @PathVariable(name = "user-id", required = false) Long userId,
+            @PathVariable(name = "id", required = false) Long userId,
             @RequestParam(value = "page", defaultValue = "0", required = false) Integer page,
             @RequestParam(value = "size", defaultValue = "10", required = false) Integer size
     ) {

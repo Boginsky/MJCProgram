@@ -22,7 +22,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Optional;
 
@@ -64,9 +63,27 @@ public class OrderServiceImplTest {
         name = "name";
         defaultPage = 0;
         defaultPageSize = 10;
-        user = new User(id, name, name);
-        giftCertificate = new GiftCertificate(id, name, name, BigDecimal.ZERO, defaultPage, ZonedDateTime.now(), ZonedDateTime.now());
-        order = new Order(id, BigDecimal.ONE, ZonedDateTime.now(), user, giftCertificate);
+        user = User.builder()
+                .id(id)
+                .firstName(name)
+                .lastName(name)
+                .build();
+        giftCertificate = GiftCertificate.builder()
+                .id(id)
+                .name(name)
+                .description(name)
+                .price(BigDecimal.TEN)
+                .duration(defaultPage)
+                .createDate(ZonedDateTime.now())
+                .lastUpdateDate(ZonedDateTime.now())
+                .build();
+        order = Order.builder()
+                .id(id)
+                .totalPrice(BigDecimal.TEN)
+                .dateOfPurchase(ZonedDateTime.now())
+                .user(user)
+                .giftCertificate(giftCertificate)
+                .build();
         orderDto = new OrderDto(id, giftCertificate, user, BigDecimal.ONE, ZonedDateTime.now());
         user.setOrderList(new HashSet<>());
     }
@@ -76,7 +93,7 @@ public class OrderServiceImplTest {
         when(userRepository.getByField("id", id)).thenReturn(Optional.of(user));
         when(giftCertificateRepository.getByField("id", id)).thenReturn(Optional.of(giftCertificate));
         when(orderDtoConverter.convertToDto(any())).thenReturn(orderDto);
-        when(orderRepository.getByField("id",id)).thenReturn(Optional.of(order));
+        when(orderRepository.getByField("id", id)).thenReturn(Optional.of(order));
         orderService.create(id, id);
         verify(orderRepository).create(any());
     }
@@ -102,24 +119,24 @@ public class OrderServiceImplTest {
     }
 
     @Test(expected = InvalidParametersException.class)
-    public void testGetAllShouldThrowInvalidParametersExceptionWhenParametersInvalid(){
-        orderService.getAll(-10,10);
+    public void testGetAllShouldThrowInvalidParametersExceptionWhenParametersInvalid() {
+        orderService.getAll(-10, 10);
     }
 
     @Test
     public void testGetAllByUserIdShouldGetAll() {
         when(orderDtoConverter.convertToDto(any())).thenReturn(orderDto);
-        when(userRepository.getByField("id",id)).thenReturn(Optional.of(user));
-        orderService.getAllByUserId(id,defaultPage,defaultPageSize);
-        verify(orderRepository).getAllByUserId(any(),any());
+        when(userRepository.getByField("id", id)).thenReturn(Optional.of(user));
+        orderService.getAllByUserId(id, defaultPage, defaultPageSize);
+        verify(orderRepository).getAllByUserId(any(), any());
     }
 
     @Test(expected = NoSuchEntityException.class)
     public void testGetAllByUserIdShouldThrowNoSuchEntityExceptionWhenNotFound() {
         when(orderDtoConverter.convertToDto(any())).thenReturn(orderDto);
-        when(userRepository.getByField("id",id)).thenReturn(Optional.empty());
-        orderService.getAllByUserId(id,defaultPage,defaultPageSize);
-        verify(orderRepository).getAllByUserId(any(),any());
+        when(userRepository.getByField("id", id)).thenReturn(Optional.empty());
+        orderService.getAllByUserId(id, defaultPage, defaultPageSize);
+        verify(orderRepository).getAllByUserId(any(), any());
     }
 
     @After
@@ -129,7 +146,7 @@ public class OrderServiceImplTest {
         user = null;
         giftCertificate = null;
         order = null;
-        user = null;
+        orderDto = null;
         defaultPage = null;
         defaultPageSize = null;
     }

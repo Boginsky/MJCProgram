@@ -3,9 +3,10 @@ package com.epam.esm.model.entity;
 import com.epam.esm.model.audit.EntityAuditListener;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -22,6 +23,8 @@ import java.util.List;
 @Entity
 @Table(name = "tag")
 @EntityListeners(EntityAuditListener.class)
+@SuperBuilder
+@AllArgsConstructor
 public class Tag extends ApplicationBaseEntity {
 
     @Column(name = "name", nullable = false, unique = true)
@@ -35,24 +38,4 @@ public class Tag extends ApplicationBaseEntity {
     )
     private List<GiftCertificate> giftCertificateList = new ArrayList<>();
 
-    @Builder
-    public Tag(long id, String name) {
-        super(id);
-        this.name = name;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Tag tag = (Tag) o;
-        return name.equals(tag.name);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = 1;
-        result = 31 * result + ((name == null) ? 0 : name.hashCode());
-        return result;
-    }
 }

@@ -80,7 +80,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<OrderDto> getById(Long orderId) {
         Order order = orderRepository.getByField("id", orderId).orElseThrow(
-                () -> new NoSuchEntityException("message.cantFindOrder"));
+                () -> new NoSuchEntityException("message.order.missing"));
         List<OrderDto> listOfOrders = new ArrayList<>();
         listOfOrders.add(orderDtoConverter.convertToDto(order));
         return listOfOrders;
@@ -117,13 +117,13 @@ public class OrderServiceImpl implements OrderService {
 
 
     private Order createOrder(Order order) {
-        return  orderRepository.create(order);
+        return orderRepository.create(order);
     }
 
     private GiftCertificate isPresentGiftCertificate(Long giftCertificateId) {
         Optional<GiftCertificate> giftCertificateOptional = giftCertificateRepository.getByField("id", giftCertificateId);
         if (!giftCertificateOptional.isPresent()) {
-            throw new NoSuchEntityException("message.notFound");
+            throw new NoSuchEntityException("message.certificate.missing");
         } else {
             return giftCertificateOptional.get();
         }
@@ -132,7 +132,7 @@ public class OrderServiceImpl implements OrderService {
     private User isPresentUser(Long userId) {
         Optional<User> userOptional = userRepository.getByField("id", userId);
         if (!userOptional.isPresent()) {
-            throw new NoSuchEntityException("message.cantFindUser");
+            throw new NoSuchEntityException("message.user.missing");
         } else {
             return userOptional.get();
         }

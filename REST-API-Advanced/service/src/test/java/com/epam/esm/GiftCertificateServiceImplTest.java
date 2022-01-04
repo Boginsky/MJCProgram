@@ -1,11 +1,8 @@
 package com.epam.esm;
 
 import com.epam.esm.model.entity.GiftCertificate;
-import com.epam.esm.model.entity.Tag;
 import com.epam.esm.model.repository.impl.GiftCertificateRepositoryImpl;
-import com.epam.esm.model.repository.impl.TagRepositoryImpl;
 import com.epam.esm.service.dto.GiftCertificateDto;
-import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.dto.converter.DtoConverter;
 import com.epam.esm.service.exception.InvalidParametersException;
 import com.epam.esm.service.exception.NoSuchEntityException;
@@ -23,7 +20,6 @@ import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -38,18 +34,11 @@ public class GiftCertificateServiceImplTest {
     private String name;
     private GiftCertificate giftCertificate;
     private GiftCertificateDto giftCertificateDto;
-    private Tag tag;
-    private TagDto tagDto;
     private Integer defaultPage;
     private Integer defaultPageSize;
-    private List<String> listOfStrings;
 
     @MockBean
     private GiftCertificateRepositoryImpl giftCertificateRepository;
-    @MockBean
-    private TagRepositoryImpl tagRepository;
-    @MockBean
-    private DtoConverter<Tag, TagDto> tagDtoConverter;
     @MockBean
     private DtoConverter<GiftCertificate, GiftCertificateDto> giftCertificateDtoConverter;
     @Autowired
@@ -61,11 +50,16 @@ public class GiftCertificateServiceImplTest {
         name = "name";
         defaultPage = 0;
         defaultPageSize = 10;
-        giftCertificate = new GiftCertificate(id, name, name, BigDecimal.TEN, defaultPageSize, ZonedDateTime.now(), ZonedDateTime.now());
+        giftCertificate = GiftCertificate.builder()
+                .id(id)
+                .name(name)
+                .description(name)
+                .price(BigDecimal.TEN)
+                .duration(defaultPage)
+                .createDate(ZonedDateTime.now())
+                .lastUpdateDate(ZonedDateTime.now())
+                .build();
         giftCertificateDto = new GiftCertificateDto(id, name, name, BigDecimal.TEN, defaultPageSize, ZonedDateTime.now(), ZonedDateTime.now(), new HashSet<>());
-        tag = new Tag(id, name);
-        tagDto = new TagDto(id, name);
-        listOfStrings = new ArrayList<>();
     }
 
     @Test
@@ -82,8 +76,8 @@ public class GiftCertificateServiceImplTest {
     }
 
     @Test
-    public void testGetAllShouldGetWhenFound(){
-        giftCertificateService.getAll(defaultPage,defaultPageSize);
+    public void testGetAllShouldGetWhenFound() {
+        giftCertificateService.getAll(defaultPage, defaultPageSize);
         verify(giftCertificateRepository).getAll(any());
     }
 
@@ -102,35 +96,35 @@ public class GiftCertificateServiceImplTest {
     }
 
     @Test(expected = NoSuchEntityException.class)
-    public void testGetByIdShouldThrowNoSuchEntityExceptionWhenNotFound(){
+    public void testGetByIdShouldThrowNoSuchEntityExceptionWhenNotFound() {
         when(giftCertificateDtoConverter.convertToDto(giftCertificate)).thenReturn(giftCertificateDto);
         giftCertificateService.getById(id);
     }
 
     @Test
-    public void getAllByTagNameShouldGetWhenFound(){
+    public void getAllByTagNameShouldGetWhenFound() {
         when(giftCertificateDtoConverter.convertToDto(giftCertificate)).thenReturn(giftCertificateDto);
-        giftCertificateService.getAllByTagName(listOfStrings);
-        verify(giftCertificateRepository).getAllByTagNames(listOfStrings);
+        giftCertificateService.getAllByTagName(new ArrayList<>());
+        verify(giftCertificateRepository).getAllByTagNames(new ArrayList<>());
     }
 
     @Test
-    public void updateByIdShouldUpdateWhenFound(){
-        when(giftCertificateRepository.getByField("id",id)).thenReturn(Optional.of(giftCertificate));
+    public void updateByIdShouldUpdateWhenFound() {
+        when(giftCertificateRepository.getByField("id", id)).thenReturn(Optional.of(giftCertificate));
         when(giftCertificateDtoConverter.convertToDto(giftCertificate)).thenReturn(giftCertificateDto);
-        giftCertificateService.updateById(id,giftCertificateDto);
+        giftCertificateService.updateById(id, giftCertificateDto);
         verify(giftCertificateRepository).update(giftCertificate);
     }
 
     @Test
-    public void testDeleteByIdShouldDeleteWhenFound(){
-        when(giftCertificateRepository.getByField("id",id)).thenReturn(Optional.of(giftCertificate));
+    public void testDeleteByIdShouldDeleteWhenFound() {
+        when(giftCertificateRepository.getByField("id", id)).thenReturn(Optional.of(giftCertificate));
         giftCertificateService.deleteById(id);
         verify(giftCertificateRepository).delete(giftCertificate);
     }
 
     @Test(expected = NoSuchEntityException.class)
-    public void testDeleteByIdShouldThrowNoSuchEntityExceptionWhenNotFound(){
+    public void testDeleteByIdShouldThrowNoSuchEntityExceptionWhenNotFound() {
         giftCertificateService.deleteById(id);
         verify(giftCertificateRepository).delete(giftCertificate);
     }
@@ -142,6 +136,6 @@ public class GiftCertificateServiceImplTest {
         defaultPage = null;
         defaultPageSize = null;
         giftCertificate = null;
-        tag = null;
+        giftCertificateDto = null;
     }
 }

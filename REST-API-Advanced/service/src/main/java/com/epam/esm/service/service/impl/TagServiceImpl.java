@@ -112,28 +112,28 @@ public class TagServiceImpl implements TagService {
 
     public void isExist(Tag tag) {
         if (tagRepository.getByName(tag.getName()).isPresent()) {
-            throw new DuplicateEntityException("message.tagExists");
+            throw new DuplicateEntityException("message.tag.existent");
         }
     }
 
     private Tag isPresent(Long id) {
         Optional<Tag> optionalTag = tagRepository.getByField("id", id);
         if (!optionalTag.isPresent()) {
-            throw new NoSuchEntityException("message.tagDoesntExist");
+            throw new NoSuchEntityException("message.tag.nonexistent");
         }
         return optionalTag.get();
     }
 
     private void isPresentUser(Long userId) {
         if (!userRepository.getByField("id", userId).isPresent()) {
-            throw new NoSuchEntityException("message.cantFindUser");
+            throw new NoSuchEntityException("message.user.missing");
         }
     }
 
     private BestTag isPresentBestTag(Long userId) {
         Optional<BestTag> bestTagOptional = tagRepository.getHighestCostTag(userId);
         if (!bestTagOptional.isPresent()) {
-            throw new NoSuchEntityException("message.cantFindTagByUserId");
+            throw new NoSuchEntityException("message.tag.missing");
         }
         return bestTagOptional.get();
     }

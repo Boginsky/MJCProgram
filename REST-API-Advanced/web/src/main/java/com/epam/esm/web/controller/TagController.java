@@ -32,10 +32,10 @@ public class TagController {
         this.tagLinkAdder = tagLinkAdder;
     }
 
-    @GetMapping(value = {"/{tag-id}", ""})
+    @GetMapping(value = {"/{id}", ""})
     @ResponseStatus(HttpStatus.OK)
     public List<TagDto> getAll(
-            @PathVariable(name = "tag-id", required = false) Long tagId,
+            @PathVariable(name = "id", required = false) Long tagId,
             @RequestParam(value = "page", defaultValue = "0", required = false) Integer page,
             @RequestParam(value = "size", defaultValue = "10", required = false) Integer size
     ) {
@@ -51,9 +51,9 @@ public class TagController {
         return tagService.getHighestCostTag(userId);
     }
 
-    @DeleteMapping(value = "/{tag-id}")
+    @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteById(@PathVariable(name = "tag-id") Long tagId) {
+    public void deleteById(@PathVariable(name = "id") Long tagId) {
         tagService.deleteById(tagId);
     }
 

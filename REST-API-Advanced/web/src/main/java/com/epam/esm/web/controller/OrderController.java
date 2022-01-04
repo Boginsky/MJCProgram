@@ -28,9 +28,9 @@ public class OrderController {
         this.orderLinkAdder = orderLinkAdder;
     }
 
-    @PostMapping(value = "/{user-id}")
+    @PostMapping(value = "/{userId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public OrderDto create(@PathVariable(name = "user-id", required = false) Long userId,
+    public OrderDto create(@PathVariable(name = "userId", required = false) Long userId,
                            @RequestParam(value = "gift-certificate-id") Long giftCertificateIds
     ) {
         OrderDto orderDto = orderService.create(userId, giftCertificateIds);
@@ -38,10 +38,10 @@ public class OrderController {
         return orderDto;
     }
 
-    @GetMapping(value = {"/{order-id}", ""})
+    @GetMapping(value = {"/{orderId}", ""})
     @ResponseStatus(HttpStatus.OK)
-    public List<OrderDto> getAll(@PathVariable(name = "order-id", required = false) Long orderId,
-                                 @RequestParam(name = "user-id", required = false) Long userId,
+    public List<OrderDto> getAll(@PathVariable(name = "orderId", required = false) Long orderId,
+                                 @RequestParam(name = "userId", required = false) Long userId,
                                  @RequestParam(value = "page", defaultValue = "0", required = false) Integer page,
                                  @RequestParam(value = "size", defaultValue = "10", required = false) Integer size) {
         List<OrderDto> orderDtoList = orderService.getRoute(userId, orderId, page, size);

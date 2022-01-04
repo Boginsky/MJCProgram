@@ -27,8 +27,7 @@ import static org.mockito.Mockito.when;
 public class UserServiceImplTest {
 
     private Long id;
-    private String firstName;
-    private String lastName;
+    private String name;
     private UserDto userDto;
     private User user;
     private Integer defaultPage;
@@ -46,10 +45,13 @@ public class UserServiceImplTest {
     @Before
     public void setUp() {
         id = 1L;
-        firstName = "userFirstName";
-        lastName = "userFirstName";
-        userDto = new UserDto(id, firstName, lastName);
-        user = new User(id, firstName, lastName);
+        name = "userName";
+        userDto = new UserDto(id, name, name);
+        user = User.builder()
+                .id(id)
+                .firstName(name)
+                .lastName(name)
+                .build();
         defaultPage = 0;
         defaultPageSize = 10;
     }
@@ -88,8 +90,7 @@ public class UserServiceImplTest {
     @After
     public void tierDown() {
         id = null;
-        firstName = null;
-        lastName = null;
+        name = null;
         userDto = null;
         user = null;
         defaultPage = null;
