@@ -3,7 +3,7 @@ package com.epam.esm.service.validator;
 import com.epam.esm.service.dto.UserDto;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("userValidator")
 public class UserValidator extends AbstractValidator<UserDto> {
 
     protected UserValidator() {

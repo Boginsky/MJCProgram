@@ -20,8 +20,8 @@ public interface GiftCertificateService {
 
     GiftCertificateDto updateById(Long giftCertificateId, GiftCertificateDto giftCertificateDto);
 
-    List<GiftCertificateDto> getAllWithSortingAndFiltering(List<String> sortColumns, List<String> orderType, List<String> filterBy);
+    List<GiftCertificateDto> getAllWithSortingAndFiltering(List<String> sortColumns, List<String> orderType, List<String> filterBy,Integer page,Integer size);
 
-    List<GiftCertificateDto> getAllByTagName(List<String> tagName);
+    List<GiftCertificateDto> getAllByTagName(List<String> tagName,Integer page,Integer size);
 
 }

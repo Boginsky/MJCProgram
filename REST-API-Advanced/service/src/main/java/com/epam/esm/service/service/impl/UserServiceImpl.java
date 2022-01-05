@@ -4,7 +4,6 @@ import com.epam.esm.model.entity.User;
 import com.epam.esm.model.repository.UserRepository;
 import com.epam.esm.service.dto.UserDto;
 import com.epam.esm.service.dto.converter.DtoConverter;
-import com.epam.esm.service.exception.InvalidEntityException;
 import com.epam.esm.service.exception.InvalidParametersException;
 import com.epam.esm.service.exception.NoSuchEntityException;
 import com.epam.esm.service.service.UserService;
@@ -16,14 +15,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,6 +27,7 @@ public class UserServiceImpl implements UserService {
     @Qualifier("giftCertificateConverter")
     private final DtoConverter<User, UserDto> userDtoConverter;
     private final UserRepository userRepository;
+    @Qualifier("userValidator")
     private final UserValidator userValidator;
 
     @Autowired
@@ -90,6 +85,5 @@ public class UserServiceImpl implements UserService {
         userValidator.validateFirstName(userDto);
         userValidator.validateLastName(userDto);
     }
-
 }
 

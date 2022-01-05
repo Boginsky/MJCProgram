@@ -3,7 +3,7 @@ package com.epam.esm.service.validator;
 import com.epam.esm.service.dto.TagDto;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("tagValidator")
 public class TagValidator extends AbstractValidator<TagDto> {
 
     protected TagValidator() {

@@ -28,10 +28,10 @@ public class OrderController {
         this.orderLinkAdder = orderLinkAdder;
     }
 
-    @PostMapping(value = "/{userId}")
+    @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public OrderDto create(@PathVariable(name = "userId", required = false) Long userId, // FIXME: 05.01.2022 may it should be made a RequestParam instead of PathVariable
-                           @RequestParam(value = "gift-certificate-id") Long giftCertificateId
+    public OrderDto create(@RequestParam(name = "user-id") Long userId,
+                           @RequestParam(name = "gift-certificate-id") Long giftCertificateId
     ) {
         OrderDto orderDto = orderService.create(userId, giftCertificateId);
         orderLinkAdder.addLinks(orderDto);

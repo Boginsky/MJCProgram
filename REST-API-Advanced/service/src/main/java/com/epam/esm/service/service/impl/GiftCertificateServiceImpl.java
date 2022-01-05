@@ -33,21 +33,25 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     private final TagRepository tagRepository;
     private final GiftCertificateRepository giftCertificateRepository;
+
     @Qualifier("tagDtoConverter")
     private final DtoConverter<Tag, TagDto> tagDtoConverter;
+
     @Qualifier("giftCertificateConverter")
     private final DtoConverter<GiftCertificate, GiftCertificateDto> giftCertificateDtoConverter;
-    private final GiftCertificateValidator customValidator;
+
+    @Qualifier("giftCertificateValidator")
+    private final GiftCertificateValidator giftCertificateValidator;
 
     @Autowired
     public GiftCertificateServiceImpl(GiftCertificateRepository giftCertificateRepository, TagRepository tagRepository,
                                       DtoConverter<GiftCertificate, GiftCertificateDto> giftCertificateDtoConverter,
-                                      DtoConverter<Tag, TagDto> tagDtoConverter, GiftCertificateValidator customValidator) {
+                                      DtoConverter<Tag, TagDto> tagDtoConverter, GiftCertificateValidator giftCertificateValidator) {
         this.giftCertificateRepository = giftCertificateRepository;
         this.tagRepository = tagRepository;
         this.giftCertificateDtoConverter = giftCertificateDtoConverter;
         this.tagDtoConverter = tagDtoConverter;
-        this.customValidator = customValidator;
+        this.giftCertificateValidator = giftCertificateValidator;
     }
 
     @Override
@@ -57,9 +61,9 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         if (giftCertificateId != null) {
             return getById(giftCertificateId);
         } else if (sortColumns != null || filterBy != null) {
-            return getAllWithSortingAndFiltering(sortColumns, orderType, filterBy);
+            return getAllWithSortingAndFiltering(sortColumns, orderType, filterBy,page,size);
         } else if (tagName != null) {
-            return getAllByTagName(tagName);
+            return getAllByTagName(tagName,page,size);
         } else {
             return getAll(page, size);
         }
@@ -118,12 +122,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     @Override
     public List<GiftCertificateDto> getAll(Integer page, Integer size) {
-        Pageable pageable;
-        try {
-            pageable = PageRequest.of(page, size);
-        } catch (IllegalArgumentException e) {
-            throw new InvalidParametersException("message.pagination.invalid");
-        }
+        Pageable pageable = getPageable(page,size);
         List<GiftCertificate> giftCertificateList = giftCertificateRepository.getAll(pageable);
         return giftCertificateList.stream()
                 .map(giftCertificateDtoConverter::convertToDto)
@@ -132,9 +131,9 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    public List<GiftCertificateDto> getAllWithSortingAndFiltering(List<String> sortColumns,
-                                                                  List<String> orderType,
-                                                                  List<String> filterBy) {
+    public List<GiftCertificateDto> getAllWithSortingAndFiltering(List<String> sortColumns, List<String> orderType,
+                                                                  List<String> filterBy, Integer page, Integer size) {
+        Pageable pageable = getPageable(page,size);
         if (sortColumns == null) {
             sortColumns = new ArrayList<>();
         }
@@ -144,15 +143,16 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         if (filterBy == null) {
             filterBy = new ArrayList<>();
         }
-        List<GiftCertificate> giftCertificateList = giftCertificateRepository.getAllWithSortingAndFiltering(sortColumns, orderType, filterBy);
+        List<GiftCertificate> giftCertificateList = giftCertificateRepository.getAllWithSortingAndFiltering(sortColumns, orderType, filterBy, pageable);
         return giftCertificateList.stream()
                 .map(giftCertificateDtoConverter::convertToDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<GiftCertificateDto> getAllByTagName(List<String> tagName) {
-        List<GiftCertificate> giftCertificateList = giftCertificateRepository.getAllByTagNames(tagName);
+    public List<GiftCertificateDto> getAllByTagName(List<String> tagName, Integer page, Integer size) {
+        Pageable pageable = getPageable(page,size);
+        List<GiftCertificate> giftCertificateList = giftCertificateRepository.getAllByTagNames(tagName,pageable);
         return giftCertificateList.stream()
                 .map(giftCertificateDtoConverter::convertToDto)
                 .collect(Collectors.toList());
@@ -168,21 +168,37 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     private void setUpdatedFields(GiftCertificate sourceCertificate,
                                   GiftCertificateDto giftCertificateDto) {
-        String name = giftCertificateDto.getName();
-        if (name != null && !sourceCertificate.getName().equals(name)) {
-            sourceCertificate.setName(name);
+        updateName(sourceCertificate, giftCertificateDto);
+        updateDescription(sourceCertificate, giftCertificateDto);
+        updatePrice(sourceCertificate, giftCertificateDto);
+        updateDuration(sourceCertificate, giftCertificateDto);
+    }
+
+    private void updateDuration(GiftCertificate sourceCertificate, GiftCertificateDto giftCertificateDto) {
+        int duration = giftCertificateDto.getDuration();
+        if (duration != 0 && sourceCertificate.getDuration() != duration) {
+            sourceCertificate.setDuration(duration);
         }
-        String description = giftCertificateDto.getDescription();
-        if (description != null && !sourceCertificate.getDescription().equals(description)) {
-            sourceCertificate.setDescription(description);
-        }
+    }
+
+    private void updatePrice(GiftCertificate sourceCertificate, GiftCertificateDto giftCertificateDto) {
         BigDecimal price = giftCertificateDto.getPrice();
         if (price != null && sourceCertificate.getPrice().compareTo(price) != 0) {
             sourceCertificate.setPrice(price);
         }
-        int duration = giftCertificateDto.getDuration();
-        if (duration != 0 && sourceCertificate.getDuration() != duration) {
-            sourceCertificate.setDuration(duration);
+    }
+
+    private void updateDescription(GiftCertificate sourceCertificate, GiftCertificateDto giftCertificateDto) {
+        String description = giftCertificateDto.getDescription();
+        if (description != null && !sourceCertificate.getDescription().equals(description)) {
+            sourceCertificate.setDescription(description);
+        }
+    }
+
+    private void updateName(GiftCertificate sourceCertificate, GiftCertificateDto giftCertificateDto) {
+        String name = giftCertificateDto.getName();
+        if (name != null && !sourceCertificate.getName().equals(name)) {
+            sourceCertificate.setName(name);
         }
     }
 
@@ -197,11 +213,21 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         return savedTags;
     }
 
+    private Pageable getPageable(Integer page, Integer size){
+        Pageable pageable;
+        try {
+            pageable = PageRequest.of(page, size);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidParametersException("message.pagination.invalid");
+        }
+        return pageable;
+    }
+
     private void validateFields(GiftCertificateDto giftCertificateDto) {
-        customValidator.validateName(giftCertificateDto);
-        customValidator.validateDescription(giftCertificateDto);
-        customValidator.validatePrice(giftCertificateDto);
-        customValidator.validateDuration(giftCertificateDto);
-        customValidator.validateTags(giftCertificateDto);
+        giftCertificateValidator.validateName(giftCertificateDto);
+        giftCertificateValidator.validateDescription(giftCertificateDto);
+        giftCertificateValidator.validatePrice(giftCertificateDto);
+        giftCertificateValidator.validateDuration(giftCertificateDto);
+        giftCertificateValidator.validateTags(giftCertificateDto);
     }
 }

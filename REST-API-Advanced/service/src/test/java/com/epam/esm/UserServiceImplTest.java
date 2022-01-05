@@ -7,6 +7,7 @@ import com.epam.esm.service.dto.converter.DtoConverter;
 import com.epam.esm.service.exception.InvalidParametersException;
 import com.epam.esm.service.exception.NoSuchEntityException;
 import com.epam.esm.service.service.impl.UserServiceImpl;
+import com.epam.esm.service.validator.UserValidator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +39,9 @@ public class UserServiceImplTest {
 
     @MockBean
     private DtoConverter<User, UserDto> userDtoConverter;
+
+    @MockBean
+    private UserValidator userValidator;
 
     @Autowired
     private UserServiceImpl userService;

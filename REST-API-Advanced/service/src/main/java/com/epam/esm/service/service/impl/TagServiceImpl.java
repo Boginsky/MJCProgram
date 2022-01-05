@@ -32,15 +32,16 @@ public class TagServiceImpl implements TagService {
     private final UserRepository userRepository;
     @Qualifier("tagDtoConverter")
     private final DtoConverter<Tag, TagDto> tagDtoConverter;
-    private final TagValidator tagTagValidator;
+    @Qualifier("tagValidator")
+    private final TagValidator tagValidator;
 
     @Autowired
     public TagServiceImpl(TagRepository tagRepository, DtoConverter<Tag, TagDto> tagDtoConverter,
-                          UserRepository userRepository, TagValidator tagTagValidator) {
+                          UserRepository userRepository, TagValidator tagValidator) {
         this.userRepository = userRepository;
         this.tagRepository = tagRepository;
         this.tagDtoConverter = tagDtoConverter;
-        this.tagTagValidator = tagTagValidator;
+        this.tagValidator = tagValidator;
     }
 
     @Override
@@ -55,7 +56,7 @@ public class TagServiceImpl implements TagService {
     @Override
     @Transactional
     public TagDto create(TagDto tagDto) {
-        tagTagValidator.validateTagName(tagDto);
+        tagValidator.validateTagName(tagDto);
         Tag tag = tagDtoConverter.convertToEntity(tagDto);
         isExist(tag);
         tag = tagRepository.create(tag);
@@ -71,7 +72,7 @@ public class TagServiceImpl implements TagService {
 
     @Override
     public TagDto update(TagDto tagDto) {
-        tagTagValidator.validateTagName(tagDto);
+        tagValidator.validateTagName(tagDto);
         Tag tag = tagDtoConverter.convertToEntity(tagDto);
         tag = tagRepository.update(tag);
         return tagDtoConverter.convertToDto(tag);

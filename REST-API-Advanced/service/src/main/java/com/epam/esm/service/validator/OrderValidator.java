@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
-@Component
+@Component("orderValidator")
 public class OrderValidator extends AbstractValidator<OrderDto> {
 
     protected OrderValidator() {

@@ -34,6 +34,7 @@ public class OrderServiceImpl implements OrderService {
     private final UserRepository userRepository;
     @Qualifier("orderDtoConverter")
     private final DtoConverter<Order, OrderDto> orderDtoConverter;
+    @Qualifier("orderValidator")
     private final OrderValidator orderValidator;
 
     @Autowired

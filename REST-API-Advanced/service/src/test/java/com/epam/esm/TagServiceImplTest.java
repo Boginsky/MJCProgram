@@ -11,6 +11,7 @@ import com.epam.esm.service.exception.DuplicateEntityException;
 import com.epam.esm.service.exception.InvalidParametersException;
 import com.epam.esm.service.exception.NoSuchEntityException;
 import com.epam.esm.service.service.impl.TagServiceImpl;
+import com.epam.esm.service.validator.TagValidator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,6 +49,9 @@ public class TagServiceImplTest {
 
     @MockBean
     private DtoConverter<Tag, TagDto> tagDtoConverter;
+
+    @MockBean
+    private TagValidator tagValidator;
 
     @Autowired
     private TagServiceImpl tagService;

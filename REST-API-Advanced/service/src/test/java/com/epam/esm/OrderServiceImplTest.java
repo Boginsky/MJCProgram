@@ -11,6 +11,7 @@ import com.epam.esm.service.dto.converter.DtoConverter;
 import com.epam.esm.service.exception.InvalidParametersException;
 import com.epam.esm.service.exception.NoSuchEntityException;
 import com.epam.esm.service.service.impl.OrderServiceImpl;
+import com.epam.esm.service.validator.OrderValidator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,6 +54,9 @@ public class OrderServiceImplTest {
 
     @MockBean
     private DtoConverter<Order, OrderDto> orderDtoConverter;
+
+    @MockBean
+    private OrderValidator orderValidator;
 
     @Autowired
     private OrderServiceImpl orderService;

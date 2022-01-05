@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.Set;
 
-@Component
+@Component("giftCertificateValidator")
 public class GiftCertificateValidator extends AbstractValidator<GiftCertificateDto> {
 
     protected GiftCertificateValidator() {

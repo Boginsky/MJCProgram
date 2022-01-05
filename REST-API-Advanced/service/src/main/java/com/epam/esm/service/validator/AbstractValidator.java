@@ -18,9 +18,9 @@ public abstract class AbstractValidator<T> {
     protected static final String FIRST_NAME = "firstName";
     protected static final String LAST_NAME = "lastName";
 
-    final ValidatorFactory factory;
-    final Validator validator;
-    final Class<T> customClass;
+    protected final ValidatorFactory factory;
+    protected final Validator validator;
+    protected final Class<T> customClass;
 
     protected AbstractValidator(Class<T> customClass) {
         this.customClass = customClass;

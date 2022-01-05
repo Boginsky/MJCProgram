@@ -4,6 +4,7 @@ import com.epam.esm.model.entity.GiftCertificate;
 import com.epam.esm.model.entity.Tag;
 import com.epam.esm.model.repository.AbstractRepository;
 import com.epam.esm.model.repository.GiftCertificateRepository;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +27,8 @@ public class GiftCertificateRepositoryImpl extends AbstractRepository<GiftCertif
     }
 
     @Override
-    public List<GiftCertificate> getAllWithSortingAndFiltering(List<String> sortColumns, List<String> orderType, List<String> filterBy) {
+    public List<GiftCertificate> getAllWithSortingAndFiltering(List<String> sortColumns, List<String> orderType,
+                                                               List<String> filterBy, Pageable pageable) {
         CriteriaQuery<GiftCertificate> query = criteriaBuilder.createQuery(GiftCertificate.class);
         Root<GiftCertificate> root = query.from(GiftCertificate.class);
 
@@ -38,11 +40,14 @@ public class GiftCertificateRepositoryImpl extends AbstractRepository<GiftCertif
             List<Predicate> predicateList = criteriaBuilderHelper.buildFilterBy(root, filterBy);
             query.select(root).where(predicateList.toArray(new Predicate[0]));
         }
-        return entityManager.createQuery(query).getResultList();
+        return entityManager.createQuery(query)
+                .setFirstResult((int)pageable.getOffset())
+                .setMaxResults(pageable.getPageSize())
+                .getResultList();
     }
 
     @Override
-    public List<GiftCertificate> getAllByTagNames(List<String> tagNames) {
+    public List<GiftCertificate> getAllByTagNames(List<String> tagNames, Pageable pageable) {
         CriteriaQuery<GiftCertificate> query = criteriaBuilder.createQuery(GiftCertificate.class);
         Root<GiftCertificate> root = query.from(GiftCertificate.class);
         query.select(root);
@@ -57,7 +62,10 @@ public class GiftCertificateRepositoryImpl extends AbstractRepository<GiftCertif
                 query.having(criteriaBuilder.greaterThanOrEqualTo(criteriaBuilder.count(root), (long) tagNames.size()));
             }
         }
-        return entityManager.createQuery(query).getResultList();
+        return entityManager.createQuery(query)
+                .setFirstResult((int)pageable.getOffset())
+                .setMaxResults(pageable.getPageSize())
+                .getResultList();
     }
 }
 
