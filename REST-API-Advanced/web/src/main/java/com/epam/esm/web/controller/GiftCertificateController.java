@@ -1,5 +1,6 @@
 package com.epam.esm.web.controller;
 
+import com.epam.esm.model.entity.CustomPage;
 import com.epam.esm.service.dto.GiftCertificateDto;
 import com.epam.esm.service.service.GiftCertificateService;
 import com.epam.esm.web.link.LinkAdder;
@@ -33,7 +34,7 @@ public class GiftCertificateController {
 
     @GetMapping(value = {"/{id}", ""})
     @ResponseStatus(HttpStatus.OK)
-    public List<GiftCertificateDto> getAllWithTags(
+    public CustomPage<GiftCertificateDto> getAllWithTags(
             @PathVariable(name = "id", required = false) Long id,
             @RequestParam(name = "tag-name", required = false) List<String> tagName,
             @RequestParam(name = "sort", required = false) List<String> sortColumns,
@@ -42,10 +43,10 @@ public class GiftCertificateController {
             @RequestParam(value = "page", defaultValue = "0", required = false) Integer page,
             @RequestParam(value = "size", defaultValue = "10", required = false) Integer size
     ) {
-        List<GiftCertificateDto> giftCertificateDtoList = giftCertificateService.getRoute(tagName, sortColumns,
+        CustomPage<GiftCertificateDto> giftCertificateDtoList = giftCertificateService.getRoute(tagName, sortColumns,
                 orderType, filterBy, id,
                 page, size);
-        giftCertificateDtoList.forEach(giftCertificateDtoLinkAdder::addLinks);
+        giftCertificateDtoList.getContent().forEach(giftCertificateDtoLinkAdder::addLinks);
         return giftCertificateDtoList;
     }
 

@@ -1,5 +1,6 @@
 package com.epam.esm.service.service.impl;
 
+import com.epam.esm.model.entity.CustomPage;
 import com.epam.esm.model.entity.GiftCertificate;
 import com.epam.esm.model.entity.Order;
 import com.epam.esm.model.entity.User;
@@ -7,6 +8,7 @@ import com.epam.esm.model.repository.GiftCertificateRepository;
 import com.epam.esm.model.repository.OrderRepository;
 import com.epam.esm.model.repository.UserRepository;
 import com.epam.esm.service.dto.OrderDto;
+import com.epam.esm.service.dto.UserDto;
 import com.epam.esm.service.dto.converter.DtoConverter;
 import com.epam.esm.service.exception.InvalidParametersException;
 import com.epam.esm.service.exception.NoSuchEntityException;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -57,6 +60,7 @@ public class OrderServiceImpl implements OrderService {
                 .user(user)
                 .giftCertificate(giftCertificate)
                 .totalPrice(giftCertificate.getPrice())
+                .dateOfPurchase(ZonedDateTime.now())
                 .build();
         OrderDto orderDto = orderDtoConverter.convertToDto(order);
         orderValidator.validatePrice(orderDto);
@@ -65,7 +69,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderDto> getRoute(Long userId, Long orderId, Integer page, Integer size) {
+    public CustomPage<OrderDto> getRoute(Long userId, Long orderId, Integer page, Integer size) {
         if (userId != null) {
             return getAllByUserId(userId, page, size);
         } else if (orderId != null) {
@@ -76,31 +80,30 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public List<OrderDto> getById(Long orderId) {
+    public CustomPage<OrderDto> getById(Long orderId) {
         Order order = orderRepository.getByField("id", orderId).orElseThrow(
                 () -> new NoSuchEntityException("message.order.missing"));
         List<OrderDto> listOfOrders = new ArrayList<>();
         listOfOrders.add(orderDtoConverter.convertToDto(order));
-        return listOfOrders;
+        return CustomPage.<OrderDto>builder()
+                .content(listOfOrders)
+                .build();
     }
 
     @Override
-    public List<OrderDto> getAll(Integer page, Integer size) {
+    public CustomPage<OrderDto> getAll(Integer page, Integer size) {
         Pageable pageable = getPageable(page, size);
-        List<Order> orderList = orderRepository.getAll(pageable);
-        return orderList.stream()
-                .map(orderDtoConverter::convertToDto)
-                .collect(Collectors.toList());
+        CustomPage<Order> orderList = orderRepository.getAll(pageable);
+        return orderDtoConverter.convertContentToDto(orderList);
     }
 
     @Override
-    public List<OrderDto> getAllByUserId(Long userId, Integer page, Integer size) {
+    public CustomPage<OrderDto> getAllByUserId(Long userId, Integer page, Integer size) {
         Pageable pageable = getPageable(page, size);
         isPresentUser(userId);
-        List<Order> orderList = orderRepository.getAllByUserId(userId, pageable);
-        return orderList.stream()
-                .map(orderDtoConverter::convertToDto)
-                .collect(Collectors.toList());
+        CustomPage<Order> orderList = orderRepository.getAllByUserId(userId, pageable);
+        return orderDtoConverter.convertContentToDto(orderList);
+
     }
 
     private Pageable getPageable(Integer page, Integer size) {

@@ -2,6 +2,7 @@ package com.epam.esm.web.exception;
 
 import com.epam.esm.service.exception.DuplicateEntityException;
 import com.epam.esm.service.exception.InvalidEntityException;
+import com.epam.esm.service.exception.InvalidParametersException;
 import com.epam.esm.service.exception.NoSuchEntityException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +58,11 @@ public class ExceptionControllerAdviser {
     @ExceptionHandler(InvalidEntityException.class)
     public ResponseEntity<ExceptionResponse> handleServiceException(InvalidEntityException e, Locale locale) {
         return buildErrorResponse(resolveResourceBundle(e.getMessage(), locale), 400, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(InvalidParametersException.class)
+    public ResponseEntity<ExceptionResponse> handleInvalidParametersException(InvalidParametersException e, Locale locale) {
+        return buildErrorResponse(resolveResourceBundle(e.getMessage(), locale), 500, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)

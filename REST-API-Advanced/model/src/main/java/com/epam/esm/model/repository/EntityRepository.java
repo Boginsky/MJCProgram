@@ -1,6 +1,8 @@
 package com.epam.esm.model.repository;
 
 import com.epam.esm.model.entity.ApplicationBaseEntity;
+import com.epam.esm.model.entity.CustomPage;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -10,7 +12,7 @@ public interface EntityRepository<T extends ApplicationBaseEntity> {
 
     T create(T entity);
 
-    List<T> getAll(Pageable pageable);
+    CustomPage<T> getAll(Pageable pageable);
 
     Optional<T> getByField(String fieldName, Object value);
 

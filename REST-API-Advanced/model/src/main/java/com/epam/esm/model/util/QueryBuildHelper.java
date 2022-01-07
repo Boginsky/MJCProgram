@@ -82,16 +82,4 @@ public class QueryBuildHelper {
         }
         return predicate;
     }
-
-    public Predicate buildAndPredicates(List<Predicate> predicates) {
-        if (predicates == null || predicates.isEmpty()) {
-            return null;
-        }
-        Predicate resultPredicate = predicates.get(0);
-        for (int i = 1; i < predicates.size(); i++) {
-            resultPredicate = criteriaBuilder.and(resultPredicate, predicates.get(i));
-        }
-        return resultPredicate;
-    }
-
 }

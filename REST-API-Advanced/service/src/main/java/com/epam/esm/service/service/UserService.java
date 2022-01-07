@@ -1,16 +1,16 @@
 package com.epam.esm.service.service;
 
+import com.epam.esm.model.entity.CustomPage;
 import com.epam.esm.service.dto.UserDto;
-
-import java.util.List;
 
 public interface UserService {
 
-    List<UserDto> getRoute(Long userId, Integer page, Integer size);
+    CustomPage<UserDto> getRoute(Long userId, Integer page, Integer size);
 
     UserDto create(UserDto userDto);
 
-    List<UserDto> getById(Long userId);
+    CustomPage<UserDto> getById(Long userId);
 
-    List<UserDto> getAll(Integer page, Integer size);
+    CustomPage<UserDto> getAll(Integer page, Integer size);
+
 }

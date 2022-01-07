@@ -32,7 +32,7 @@ public abstract class AbstractValidator<T> {
         Set<ConstraintViolation<T>> violations = validator.validateValue(customClass, propertyName, value);
         if (!violations.isEmpty()) {
             String message = violations.iterator().next().getMessage();
-            throw new InvalidEntityException(message);
+            throw new InvalidEntityException("message.validation.fail");
         }
     }
 }

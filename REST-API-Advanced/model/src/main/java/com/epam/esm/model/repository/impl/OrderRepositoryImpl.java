@@ -1,5 +1,6 @@
 package com.epam.esm.model.repository.impl;
 
+import com.epam.esm.model.entity.CustomPage;
 import com.epam.esm.model.entity.Order;
 import com.epam.esm.model.entity.User;
 import com.epam.esm.model.repository.AbstractRepository;
@@ -24,7 +25,7 @@ public class OrderRepositoryImpl extends AbstractRepository<Order> implements Or
     }
 
     @Override
-    public List<Order> getAllByUserId(Long userId, Pageable pageable) {
+    public CustomPage<Order> getAllByUserId(Long userId, Pageable pageable) {
         CriteriaQuery<Order> query = criteriaBuilder.createQuery(Order.class);
         Root<Order> root = query.from(Order.class);
         query.select(root);
@@ -33,9 +34,25 @@ public class OrderRepositoryImpl extends AbstractRepository<Order> implements Or
         Predicate joinIdPredicate = criteriaBuilder.equal(userOrderJoin.get("id"), userId);
         query.where(joinIdPredicate);
 
-        return entityManager.createQuery(query)
-                .setFirstResult((int) pageable.getOffset())
-                .setMaxResults(pageable.getPageSize())
-                .getResultList();
+        int totalAmount = getTotalAmount(root,joinIdPredicate);
+
+        return CustomPage.<Order>builder()
+                .content(entityManager.createQuery(query)
+                        .setFirstResult((int) pageable.getOffset())
+                        .setMaxResults(pageable.getPageSize())
+                        .getResultList())
+                .amountOfPages(totalAmount / pageable.getPageSize())
+                .currentPage(pageable.getPageNumber() == 0 ? 1 : pageable.getPageNumber())
+                .firstPage(1)
+                .lastPage(totalAmount / pageable.getPageSize())
+                .pageSize(pageable.getPageSize())
+                .build();
+    }
+
+    private int getTotalAmount(Root<Order> root,Predicate joinIdPredicate){
+        CriteriaQuery<Long> query= criteriaBuilder.createQuery(Long.class);
+        query.select(criteriaBuilder.count(root));
+        query.where(joinIdPredicate);
+        return entityManager.createQuery(query).getSingleResult().intValue();
     }
 }

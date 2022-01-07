@@ -1,6 +1,11 @@
 package com.epam.esm.model.repository;
 
 import com.epam.esm.model.entity.ApplicationBaseEntity;
+import com.epam.esm.model.entity.CustomPage;
+import com.epam.esm.model.entity.GiftCertificate;
+import com.epam.esm.model.entity.Order;
+import com.epam.esm.model.entity.Tag;
+import com.epam.esm.model.entity.User;
 import com.epam.esm.model.util.QueryBuildHelper;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +17,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,14 +47,22 @@ public abstract class AbstractRepository<T extends ApplicationBaseEntity> implem
     }
 
     @Override
-    public List<T> getAll(Pageable pageable) {
+    public CustomPage<T> getAll(Pageable pageable) {
         CriteriaQuery<T> query = criteriaBuilder.createQuery(entityType);
         Root<T> root = query.from(entityType);
         query.select(root);
-        return entityManager.createQuery(query)
-                .setFirstResult((int) pageable.getOffset())
-                .setMaxResults(pageable.getPageSize())
-                .getResultList();
+        int totalAmount = getTotalAmount();
+        return CustomPage.<T>builder()
+                .content(entityManager.createQuery(query)
+                        .setFirstResult((int) pageable.getOffset())
+                        .setMaxResults(pageable.getPageSize())
+                        .getResultList())
+                .amountOfPages(totalAmount / pageable.getPageSize())
+                .currentPage(pageable.getPageNumber() == 0 ? 1 : pageable.getPageNumber())
+                .firstPage(1)
+                .lastPage(totalAmount / pageable.getPageSize())
+                .pageSize(pageable.getPageSize())
+                .build();
     }
 
     @Override
@@ -73,5 +87,19 @@ public abstract class AbstractRepository<T extends ApplicationBaseEntity> implem
     public void delete(T entity) {
         T mergedEntity = entityManager.merge(entity);
         entityManager.remove(mergedEntity);
+    }
+
+    private int getTotalAmount() {
+        if (User.class.equals(entityType)) {
+            return ((BigInteger) entityManager.createNativeQuery("SELECT COUNT(*) FROM user").getSingleResult()).intValue();
+        } else if (GiftCertificate.class.equals(entityType)) {
+            return ((BigInteger) entityManager.createNativeQuery("SELECT COUNT(*) FROM gift_certificate").getSingleResult()).intValue();
+        } else if (Tag.class.equals(entityType)) {
+            return ((BigInteger) entityManager.createNativeQuery("SELECT COUNT(*) FROM tag").getSingleResult()).intValue();
+        } else if (Order.class.equals(entityType)) {
+            return ((BigInteger) entityManager.createNativeQuery("SELECT COUNT(*) FROM orders").getSingleResult()).intValue();
+        } else {
+            return 0;
+        }
     }
 }

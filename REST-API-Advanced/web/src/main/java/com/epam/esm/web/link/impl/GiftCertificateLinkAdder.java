@@ -19,7 +19,7 @@ public class GiftCertificateLinkAdder extends AbstractLinkAdder<GiftCertificateD
     @Override
     public void addLinks(GiftCertificateDto entity) {
         Long id = entity.getId();
-        addIdLinks(CONTROLLER, entity, id, SELF_LINK_NAME, UPDATE_LINK_NAME, DELETE_LINK_NAME);
+        addIdLinks(CONTROLLER, entity, id, SELF_LINK_NAME, DELETE_LINK_NAME, UPDATE_LINK_NAME);
         if (entity.getCertificateTags() != null) {
             entity.getCertificateTags().forEach(tagDtoLinkAdder::addLinks);
         }

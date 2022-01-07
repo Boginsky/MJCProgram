@@ -1,6 +1,7 @@
 package com.epam.esm.web.controller;
 
 import com.epam.esm.model.entity.BestTag;
+import com.epam.esm.model.entity.CustomPage;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.service.TagService;
 import com.epam.esm.web.link.LinkAdder;
@@ -34,14 +35,14 @@ public class TagController {
 
     @GetMapping(value = {"/{id}", ""})
     @ResponseStatus(HttpStatus.OK)
-    public List<TagDto> getAll(
+    public CustomPage<TagDto> getAll(
             @PathVariable(name = "id", required = false) Long id,
             @RequestParam(value = "page", defaultValue = "0", required = false) Integer page,
             @RequestParam(value = "size", defaultValue = "10", required = false) Integer size
     ) {
-        List<TagDto> tagList = tagService.getRoute(id, page, size);
-        tagList.forEach(tagLinkAdder::addLinks);
-        return tagList;
+        CustomPage<TagDto> tagDtoList = tagService.getRoute(id, page, size);
+        tagDtoList.getContent().forEach(tagLinkAdder::addLinks);
+        return tagDtoList;
     }
 
     @GetMapping(value = "/highest-cost")

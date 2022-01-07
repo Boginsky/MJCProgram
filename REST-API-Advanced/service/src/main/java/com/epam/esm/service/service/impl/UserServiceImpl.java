@@ -1,5 +1,6 @@
 package com.epam.esm.service.service.impl;
 
+import com.epam.esm.model.entity.CustomPage;
 import com.epam.esm.model.entity.User;
 import com.epam.esm.model.repository.UserRepository;
 import com.epam.esm.service.dto.UserDto;
@@ -18,7 +19,6 @@ import org.springframework.validation.annotation.Validated;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Validated
@@ -39,11 +39,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getRoute(Long userId, Integer page, Integer size) {
+    public CustomPage<UserDto> getRoute(Long userId, Integer page, Integer size) {
         if (userId != null) {
             return getById(userId);
         } else {
-            return getAll(page, size);
+            return getAll(page,size);
         }
     }
 
@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<UserDto> getById(Long userId) {
+    public CustomPage<UserDto> getById(Long userId) {
         Optional<User> userOptional = userRepository.getByField("id", userId);
         if (!userOptional.isPresent()) {
             throw new NoSuchEntityException("message.user.missing");
@@ -64,21 +64,21 @@ public class UserServiceImpl implements UserService {
         List<UserDto> userDtoList = new ArrayList<>();
         UserDto userDto = userDtoConverter.convertToDto(userOptional.get());
         userDtoList.add(userDto);
-        return userDtoList;
+        return CustomPage.<UserDto>builder()
+                .content(userDtoList)
+                .build();
     }
 
     @Override
-    public List<UserDto> getAll(Integer page, Integer size) {
+    public CustomPage<UserDto> getAll(Integer page, Integer size) {
         Pageable pageable;
         try {
             pageable = PageRequest.of(page, size);
         } catch (IllegalArgumentException e) {
             throw new InvalidParametersException("message.pagination.invalid");
         }
-        List<User> userList = userRepository.getAll(pageable);
-        return userList.stream()
-                .map(userDtoConverter::convertToDto)
-                .collect(Collectors.toList());
+        CustomPage<User> userCustomPage = userRepository.getAll(pageable);
+        return userDtoConverter.convertContentToDto(userCustomPage);
     }
 
     private void validateFields(UserDto userDto) {

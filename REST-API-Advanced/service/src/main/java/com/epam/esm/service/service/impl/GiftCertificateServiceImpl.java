@@ -1,5 +1,6 @@
 package com.epam.esm.service.service.impl;
 
+import com.epam.esm.model.entity.CustomPage;
 import com.epam.esm.model.entity.GiftCertificate;
 import com.epam.esm.model.entity.Tag;
 import com.epam.esm.model.repository.GiftCertificateRepository;
@@ -25,7 +26,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @Validated
@@ -33,13 +33,10 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
 
     private final TagRepository tagRepository;
     private final GiftCertificateRepository giftCertificateRepository;
-
     @Qualifier("tagDtoConverter")
     private final DtoConverter<Tag, TagDto> tagDtoConverter;
-
     @Qualifier("giftCertificateConverter")
     private final DtoConverter<GiftCertificate, GiftCertificateDto> giftCertificateDtoConverter;
-
     @Qualifier("giftCertificateValidator")
     private final GiftCertificateValidator giftCertificateValidator;
 
@@ -55,15 +52,15 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    public List<GiftCertificateDto> getRoute(List<String> tagName, List<String> sortColumns,
-                                             List<String> orderType, List<String> filterBy,
-                                             Long giftCertificateId, Integer page, Integer size) {
+    public CustomPage<GiftCertificateDto> getRoute(List<String> tagName, List<String> sortColumns,
+                                                   List<String> orderType, List<String> filterBy,
+                                                   Long giftCertificateId, Integer page, Integer size) {
         if (giftCertificateId != null) {
             return getById(giftCertificateId);
         } else if (sortColumns != null || filterBy != null) {
-            return getAllWithSortingAndFiltering(sortColumns, orderType, filterBy,page,size);
+            return getAllWithSortingAndFiltering(sortColumns, orderType, filterBy, page, size);
         } else if (tagName != null) {
-            return getAllByTagName(tagName,page,size);
+            return getAllByTagName(tagName, page, size);
         } else {
             return getAll(page, size);
         }
@@ -77,11 +74,13 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    public List<GiftCertificateDto> getById(Long id) {
+    public CustomPage<GiftCertificateDto> getById(Long id) {
         GiftCertificateDto giftCertificateDto = giftCertificateDtoConverter.convertToDto(isPresent(id));
         List<GiftCertificateDto> giftCertificateDtoList = new ArrayList<>();
         giftCertificateDtoList.add(giftCertificateDto);
-        return giftCertificateDtoList;
+        return CustomPage.<GiftCertificateDto>builder()
+                .content(giftCertificateDtoList)
+                .build();
     }
 
     @Override
@@ -121,19 +120,17 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     }
 
     @Override
-    public List<GiftCertificateDto> getAll(Integer page, Integer size) {
-        Pageable pageable = getPageable(page,size);
-        List<GiftCertificate> giftCertificateList = giftCertificateRepository.getAll(pageable);
-        return giftCertificateList.stream()
-                .map(giftCertificateDtoConverter::convertToDto)
-                .collect(Collectors.toList());
+    public CustomPage<GiftCertificateDto> getAll(Integer page, Integer size) {
+        Pageable pageable = getPageable(page, size);
+        CustomPage<GiftCertificate> giftCertificateList = giftCertificateRepository.getAll(pageable);
+        return giftCertificateDtoConverter.convertContentToDto(giftCertificateList);
 
     }
 
     @Override
-    public List<GiftCertificateDto> getAllWithSortingAndFiltering(List<String> sortColumns, List<String> orderType,
-                                                                  List<String> filterBy, Integer page, Integer size) {
-        Pageable pageable = getPageable(page,size);
+    public CustomPage<GiftCertificateDto> getAllWithSortingAndFiltering(List<String> sortColumns, List<String> orderType,
+                                                                        List<String> filterBy, Integer page, Integer size) {
+        Pageable pageable = getPageable(page, size);
         if (sortColumns == null) {
             sortColumns = new ArrayList<>();
         }
@@ -143,19 +140,17 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         if (filterBy == null) {
             filterBy = new ArrayList<>();
         }
-        List<GiftCertificate> giftCertificateList = giftCertificateRepository.getAllWithSortingAndFiltering(sortColumns, orderType, filterBy, pageable);
-        return giftCertificateList.stream()
-                .map(giftCertificateDtoConverter::convertToDto)
-                .collect(Collectors.toList());
+        CustomPage<GiftCertificate> giftCertificateList = giftCertificateRepository.getAllWithSortingAndFiltering(sortColumns, orderType, filterBy, pageable);
+        return giftCertificateDtoConverter.convertContentToDto(giftCertificateList);
     }
 
+
     @Override
-    public List<GiftCertificateDto> getAllByTagName(List<String> tagName, Integer page, Integer size) {
-        Pageable pageable = getPageable(page,size);
-        List<GiftCertificate> giftCertificateList = giftCertificateRepository.getAllByTagNames(tagName,pageable);
-        return giftCertificateList.stream()
-                .map(giftCertificateDtoConverter::convertToDto)
-                .collect(Collectors.toList());
+    public CustomPage<GiftCertificateDto> getAllByTagName(List<String> tagName, Integer page, Integer size) {
+        Pageable pageable = getPageable(page, size);
+        CustomPage<GiftCertificate> giftCertificateList = giftCertificateRepository.getAllByTagNames(tagName, pageable);
+        return giftCertificateDtoConverter.convertContentToDto(giftCertificateList);
+
     }
 
     private GiftCertificate isPresent(Long id) {
@@ -213,7 +208,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
         return savedTags;
     }
 
-    private Pageable getPageable(Integer page, Integer size){
+    private Pageable getPageable(Integer page, Integer size) {
         Pageable pageable;
         try {
             pageable = PageRequest.of(page, size);

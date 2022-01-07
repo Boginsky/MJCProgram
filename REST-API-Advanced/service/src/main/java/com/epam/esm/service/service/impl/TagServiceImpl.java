@@ -1,10 +1,12 @@
 package com.epam.esm.service.service.impl;
 
 import com.epam.esm.model.entity.BestTag;
+import com.epam.esm.model.entity.CustomPage;
 import com.epam.esm.model.entity.Tag;
 import com.epam.esm.model.repository.TagRepository;
 import com.epam.esm.model.repository.UserRepository;
 import com.epam.esm.service.dto.TagDto;
+import com.epam.esm.service.dto.UserDto;
 import com.epam.esm.service.dto.converter.DtoConverter;
 import com.epam.esm.service.exception.DuplicateEntityException;
 import com.epam.esm.service.exception.InvalidParametersException;
@@ -45,7 +47,7 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public List<TagDto> getRoute(Long tagId, Integer page, Integer size) {
+    public CustomPage<TagDto> getRoute(Long tagId, Integer page, Integer size) {
         if (tagId != null) {
             return getById(tagId);
         } else {
@@ -74,31 +76,32 @@ public class TagServiceImpl implements TagService {
     public TagDto update(TagDto tagDto) {
         tagValidator.validateTagName(tagDto);
         Tag tag = tagDtoConverter.convertToEntity(tagDto);
+        isExist(tag);
         tag = tagRepository.update(tag);
         return tagDtoConverter.convertToDto(tag);
     }
 
     @Override
-    public List<TagDto> getById(Long id) {
+    public CustomPage<TagDto> getById(Long id) {
         Tag tag = isPresent(id);
         List<TagDto> tagDtoList = new ArrayList<>();
         TagDto tagDto = tagDtoConverter.convertToDto(tag);
         tagDtoList.add(tagDto);
-        return tagDtoList;
+        return CustomPage.<TagDto>builder()
+                .content(tagDtoList)
+                .build();
     }
 
     @Override
-    public List<TagDto> getAll(Integer page, Integer size) {
+    public CustomPage<TagDto> getAll(Integer page, Integer size) {
         Pageable pageRequest;
         try {
             pageRequest = PageRequest.of(page, size);
         } catch (IllegalArgumentException e) {
             throw new InvalidParametersException("message.pagination.invalid");
         }
-        List<Tag> tagList = tagRepository.getAll(pageRequest);
-        return tagList.stream()
-                .map(tagDtoConverter::convertToDto)
-                .collect(Collectors.toList());
+        CustomPage<Tag> tagCustomPag = tagRepository.getAll(pageRequest);
+        return tagDtoConverter.convertContentToDto(tagCustomPag);
     }
 
     @Override
