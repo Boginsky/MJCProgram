@@ -55,7 +55,7 @@ public class GiftCertificateRepositoryImpl extends AbstractRepository<GiftCertif
         CriteriaQuery<Long> query = criteriaBuilder.createQuery(Long.class);
         Root<GiftCertificate> root = query.from(GiftCertificate.class);
         query.select(criteriaBuilder.count(root));
-        Join<GiftCertificate,Tag> joinTag = root.join("tags");
+        Join<GiftCertificate, Tag> joinTag = root.join("tags");
         Predicate predicate = criteriaBuilderHelper.buildOrEqualPredicates(joinTag, "name", tagNames);
         query.where(criteriaBuilder.and(predicate));
         query.having(criteriaBuilder.greaterThanOrEqualTo(criteriaBuilder.count(root), (long) tagNames.size()));

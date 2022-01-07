@@ -14,7 +14,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.List;
 
 @Repository
 @Transactional
@@ -34,7 +33,7 @@ public class OrderRepositoryImpl extends AbstractRepository<Order> implements Or
         Predicate joinIdPredicate = criteriaBuilder.equal(userOrderJoin.get("id"), userId);
         query.where(joinIdPredicate);
 
-        int totalAmount = getTotalAmount(root,joinIdPredicate);
+        int totalAmount = getTotalAmount(root, joinIdPredicate);
 
         return CustomPage.<Order>builder()
                 .content(entityManager.createQuery(query)
@@ -49,8 +48,8 @@ public class OrderRepositoryImpl extends AbstractRepository<Order> implements Or
                 .build();
     }
 
-    private int getTotalAmount(Root<Order> root,Predicate joinIdPredicate){
-        CriteriaQuery<Long> query= criteriaBuilder.createQuery(Long.class);
+    private int getTotalAmount(Root<Order> root, Predicate joinIdPredicate) {
+        CriteriaQuery<Long> query = criteriaBuilder.createQuery(Long.class);
         query.select(criteriaBuilder.count(root));
         query.where(joinIdPredicate);
         return entityManager.createQuery(query).getSingleResult().intValue();

@@ -5,8 +5,6 @@ import com.epam.esm.model.entity.BestTag;
 import com.epam.esm.model.entity.CustomPage;
 import com.epam.esm.service.dto.TagDto;
 
-import java.util.List;
-
 
 public interface TagService {
 

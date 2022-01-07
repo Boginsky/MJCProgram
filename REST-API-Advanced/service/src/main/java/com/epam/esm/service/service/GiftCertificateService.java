@@ -12,8 +12,8 @@ public interface GiftCertificateService {
     CustomPage<GiftCertificateDto> getAll(Integer page, Integer size);
 
     CustomPage<GiftCertificateDto> getRoute(List<String> tagName, List<String> sortColumns,
-                                      List<String> orderType, List<String> filterBy,
-                                      Long giftCertificateId, Integer page, Integer size);
+                                            List<String> orderType, List<String> filterBy,
+                                            Long giftCertificateId, Integer page, Integer size);
 
     void deleteById(Long id);
 

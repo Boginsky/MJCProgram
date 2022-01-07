@@ -8,7 +8,6 @@ import com.epam.esm.model.repository.GiftCertificateRepository;
 import com.epam.esm.model.repository.OrderRepository;
 import com.epam.esm.model.repository.UserRepository;
 import com.epam.esm.service.dto.OrderDto;
-import com.epam.esm.service.dto.UserDto;
 import com.epam.esm.service.dto.converter.DtoConverter;
 import com.epam.esm.service.exception.InvalidParametersException;
 import com.epam.esm.service.exception.NoSuchEntityException;
@@ -26,7 +25,6 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Validated

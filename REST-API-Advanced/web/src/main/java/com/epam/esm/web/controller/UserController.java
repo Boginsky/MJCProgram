@@ -6,9 +6,7 @@ import com.epam.esm.service.dto.UserDto;
 import com.epam.esm.service.service.OrderService;
 import com.epam.esm.service.service.UserService;
 import com.epam.esm.web.link.LinkAdder;
-import com.epam.esm.web.link.impl.PaginationLinkAdder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -39,7 +35,7 @@ public class UserController {
         this.orderLinkAdder = orderLinkAdder;
     }
 
-    @GetMapping(value = {"/{id}",""})
+    @GetMapping(value = {"/{id}", ""})
     @ResponseStatus(HttpStatus.OK)
     public CustomPage<UserDto> getAll(
             @PathVariable(name = "id", required = false) Long id,

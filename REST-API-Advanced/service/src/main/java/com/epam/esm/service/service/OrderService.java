@@ -3,8 +3,6 @@ package com.epam.esm.service.service;
 import com.epam.esm.model.entity.CustomPage;
 import com.epam.esm.service.dto.OrderDto;
 
-import java.util.List;
-
 public interface OrderService {
 
     OrderDto create(Long userId, Long giftCertificateId);

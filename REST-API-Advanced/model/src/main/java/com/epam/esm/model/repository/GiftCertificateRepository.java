@@ -9,7 +9,7 @@ import java.util.List;
 public interface GiftCertificateRepository extends EntityRepository<GiftCertificate> {
 
     CustomPage<GiftCertificate> getAllWithSortingAndFiltering(List<String> sortColumns, List<String> orderType,
-                                                        List<String> filterBy, Pageable pageable);
+                                                              List<String> filterBy, Pageable pageable);
 
     CustomPage<GiftCertificate> getAllByTagNames(List<String> tagName, Pageable pageable);
 }

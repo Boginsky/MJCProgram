@@ -6,7 +6,6 @@ import com.epam.esm.model.entity.Tag;
 import com.epam.esm.model.repository.TagRepository;
 import com.epam.esm.model.repository.UserRepository;
 import com.epam.esm.service.dto.TagDto;
-import com.epam.esm.service.dto.UserDto;
 import com.epam.esm.service.dto.converter.DtoConverter;
 import com.epam.esm.service.exception.DuplicateEntityException;
 import com.epam.esm.service.exception.InvalidParametersException;
@@ -24,7 +23,6 @@ import org.springframework.validation.annotation.Validated;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Validated

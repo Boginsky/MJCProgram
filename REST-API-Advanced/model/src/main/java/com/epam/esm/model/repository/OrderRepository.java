@@ -4,8 +4,6 @@ import com.epam.esm.model.entity.CustomPage;
 import com.epam.esm.model.entity.Order;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
 public interface OrderRepository extends EntityRepository<Order> {
 
     CustomPage<Order> getAllByUserId(Long userId, Pageable pageable);

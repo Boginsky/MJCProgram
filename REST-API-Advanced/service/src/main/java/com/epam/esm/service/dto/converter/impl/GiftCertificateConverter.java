@@ -4,7 +4,6 @@ import com.epam.esm.model.entity.CustomPage;
 import com.epam.esm.model.entity.GiftCertificate;
 import com.epam.esm.model.entity.Tag;
 import com.epam.esm.service.dto.GiftCertificateDto;
-import com.epam.esm.service.dto.OrderDto;
 import com.epam.esm.service.dto.TagDto;
 import com.epam.esm.service.dto.converter.DtoConverter;
 import org.springframework.stereotype.Component;

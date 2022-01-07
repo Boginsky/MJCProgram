@@ -43,7 +43,7 @@ public class UserServiceImpl implements UserService {
         if (userId != null) {
             return getById(userId);
         } else {
-            return getAll(page,size);
+            return getAll(page, size);
         }
     }
 

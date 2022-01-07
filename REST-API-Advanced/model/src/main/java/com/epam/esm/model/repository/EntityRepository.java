@@ -2,10 +2,8 @@ package com.epam.esm.model.repository;
 
 import com.epam.esm.model.entity.ApplicationBaseEntity;
 import com.epam.esm.model.entity.CustomPage;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 import java.util.Optional;
 
 public interface EntityRepository<T extends ApplicationBaseEntity> {
