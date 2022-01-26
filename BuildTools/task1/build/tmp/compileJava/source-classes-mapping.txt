@@ -1,2 +1,0 @@
-by/boginsky/util/StringUtils.java
- by.boginsky.util.StringUtils

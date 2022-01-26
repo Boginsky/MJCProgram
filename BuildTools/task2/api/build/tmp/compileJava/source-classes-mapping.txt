@@ -1,2 +1,0 @@
-by/boginsky/main/App.java
- by.boginsky.main.App
