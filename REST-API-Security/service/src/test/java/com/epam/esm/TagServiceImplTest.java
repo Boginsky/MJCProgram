@@ -1,0 +1,156 @@
+package com.epam.esm;
+
+import com.epam.esm.model.entity.BestTag;
+import com.epam.esm.model.entity.Tag;
+import com.epam.esm.model.entity.User;
+import com.epam.esm.model.repository.TagRepository;
+import com.epam.esm.model.repository.UserRepository;
+import com.epam.esm.service.dto.converter.DtoConverter;
+import com.epam.esm.service.dto.entity.TagDto;
+import com.epam.esm.service.exception.DuplicateEntityException;
+import com.epam.esm.service.exception.InvalidParametersException;
+import com.epam.esm.service.exception.NoSuchEntityException;
+import com.epam.esm.service.service.impl.TagServiceImpl;
+import com.epam.esm.service.util.validator.TagValidator;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import java.math.BigDecimal;
+import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@RunWith(SpringRunner.class)
+@SpringBootTest(classes = {TagServiceImpl.class})
+public class TagServiceImplTest {
+
+    private Long id;
+    private String name;
+    private Tag tag;
+    private BestTag bestTag;
+    private TagDto tagDto;
+    private User user;
+    private Integer defaultPage;
+    private Integer defaultPageSize;
+
+    @MockBean
+    private UserRepository userRepository;
+
+    @MockBean
+    private TagRepository tagRepository;
+
+    @MockBean
+    private DtoConverter<Tag, TagDto> tagDtoConverter;
+
+    @MockBean
+    private TagValidator tagValidator;
+
+    @Autowired
+    private TagServiceImpl tagService;
+
+    @Before
+    public void setUp() {
+        id = 1L;
+        name = "tagName";
+        tag = Tag.builder()
+                .id(id)
+                .name(name)
+                .build();
+        user = User.builder()
+                .id(id)
+                .firstName(name)
+                .lastName(name)
+                .build();
+        tagDto = new TagDto(id, name);
+        bestTag = new BestTag(id, name, BigDecimal.TEN);
+        defaultPage = 0;
+        defaultPageSize = 10;
+    }
+
+    @Test
+    public void testCreateShouldCreateWhenNotExist() {
+        when(tagRepository.findByName(name)).thenReturn(Optional.empty());
+        when(tagDtoConverter.convertToEntity(any())).thenReturn(tag);
+        tagService.create(tagDto);
+        verify(tagRepository).save(tag);
+    }
+
+    @Test(expected = DuplicateEntityException.class)
+    public void testCreateShouldThrowDuplicateEntityExceptionWhenExist() {
+        when(tagRepository.findByName(name)).thenReturn(Optional.of(tag));
+        when(tagDtoConverter.convertToEntity(any())).thenReturn(tag);
+        tagService.create(tagDto);
+    }
+
+    @Test
+    public void testGetAllShouldGetAll() {
+        tagService.getAll(defaultPage, defaultPageSize);
+        verify(tagRepository).findAll();
+    }
+
+    @Test(expected = InvalidParametersException.class)
+    public void testGetAllShouldThrowsInvalidParametersExceptionWhenParamsInvalid() {
+        tagService.getAll(-10, -10);
+    }
+
+    @Test
+    public void testGetByIdShouldGetWhenFound() {
+        when(tagRepository.findById(id)).thenReturn(Optional.of(tag));
+        tagService.getById(id);
+        verify(tagRepository).findById(id);
+    }
+
+    @Test(expected = NoSuchEntityException.class)
+    public void testGetByIdShouldThrowNoSuchEntityExceptionWhenNoFound() {
+        when(tagRepository.findById(id)).thenReturn(Optional.empty());
+        tagService.getById(id);
+    }
+
+    @Test
+    public void testDeleteByIdShouldDeleteWhenFound() {
+        when(tagRepository.findById(id)).thenReturn(Optional.of(tag));
+        tagService.deleteById(id);
+        verify(tagRepository).delete(tag);
+    }
+
+    @Test(expected = NoSuchEntityException.class)
+    public void testDeleteByIdShouldThrowsNoSuchEntityExceptionWhenNotFound() {
+        when(tagRepository.findById(id)).thenReturn(Optional.empty());
+        tagService.deleteById(id);
+    }
+
+    @Test
+    public void testGetHighestCostTagShouldGetWhenFound() {
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
+        when(tagRepository.getHighestCostTagAndWidelyUsed(id)).thenReturn(Optional.of(bestTag));
+        tagService.getHighestCostTag(id);
+        verify(tagRepository).getHighestCostTagAndWidelyUsed(id);
+    }
+
+    @Test(expected = NoSuchEntityException.class)
+    public void testGetHighestCostTagShouldThrowNoSuchEntityExceptionWhenNotFound() {
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
+        tagService.getHighestCostTag(id);
+        verify(tagRepository).getHighestCostTagAndWidelyUsed(id);
+    }
+
+    @After
+    public void tierDown() {
+        id = null;
+        name = null;
+        tag = null;
+        tagDto = null;
+        bestTag = null;
+        user = null;
+        defaultPage = null;
+        defaultPageSize = null;
+    }
+}
