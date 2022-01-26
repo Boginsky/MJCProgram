@@ -69,6 +69,12 @@ public class AuthenticationController {
                 .build();
     }
 
+    @GetMapping("/login")
+    @ResponseStatus(HttpStatus.OK)
+    public void login() {
+        System.out.println("Я тут");
+    }
+
     @GetMapping("/refresh-token")
     @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAuthority('refresh:token')")

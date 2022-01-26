@@ -51,18 +51,18 @@ public class OAuthAuthSuccessHandler {
         if (authentication.getPrincipal() instanceof OidcUser) {
             OidcUser principalUser = (OidcUser) authentication.getPrincipal();
             User user = mapOidUserToUser(principalUser);
-            String decodePassword = user.getPassword();
             Optional<User> optionalUser = userService.getByEmail(user.getEmail());
             if (optionalUser.isPresent()) {
                 loginOauth(response, optionalUser);
             } else {
-                signUpOauth(request, response, user, decodePassword);
+                signUpOauth(request, response, user);
             }
         }
     }
 
-    private void signUpOauth(HttpServletRequest request, HttpServletResponse response, User user, String decodePassword) throws IOException {
+    private void signUpOauth(HttpServletRequest request, HttpServletResponse response, User user) throws IOException {
         try {
+            String decodePassword = user.getPassword();
             UserDto userDto = userDtoConverter.convertToDtoForOauth2(user);
             userDto = userService.create(userDto);
             userDtoLinkAdder.addLinks(userDto);
@@ -82,10 +82,12 @@ public class OAuthAuthSuccessHandler {
     private void loginOauth(HttpServletResponse response, Optional<User> optionalUser) throws IOException {
         UserDto userDto = userDtoConverter.convertToDto(optionalUser.get());
         String jwt = jwtTokenProvider.createToken(userDto.getUsername(), userDto.getRole());
+        String jwtRefresh = jwtTokenProvider.createRefreshToken(userDto.getUsername(), userDto.getRole());
         GeneratedJwtDto generatedJwtDto = GeneratedJwtDto.builder()
                 .username(userDto.getUsername())
                 .role(userDto.getRole())
                 .jwt(jwt)
+                .jwtRefresh(jwtRefresh)
                 .build();
         Map<String, Object> responseObject = new HashMap<>();
         responseObject.put("userInfo", generatedJwtDto);

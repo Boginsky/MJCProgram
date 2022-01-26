@@ -17,6 +17,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -54,6 +55,11 @@ public class ExceptionControllerAdviser {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionResponse> handleGlobalException(Exception e, Locale locale) {
         return buildErrorResponse(resolveResourceBundle("message.super.mistake", locale), 500, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ExceptionResponse> handleAccessDeniedException(AccessDeniedException e, Locale locale) {
+        return buildErrorResponse(resolveResourceBundle("message.forbidden", locale), 403, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(InvalidJwtException.class)
