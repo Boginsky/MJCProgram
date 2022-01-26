@@ -31,17 +31,14 @@ public class AuthenticationController {
 
     private final UserService userService;
     private final LinkAdder<UserDto> userLinkAdder;
-    private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
     private final ClientRegistrationRepository clientRegistrationRepository;
 
     @Autowired
     public AuthenticationController(UserService userService, LinkAdder<UserDto> userLinkAdder,
-                                    AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider,
-                                    ClientRegistrationRepository clientRegistrationRepository) {
+                                    JwtTokenProvider jwtTokenProvider, ClientRegistrationRepository clientRegistrationRepository) {
         this.userService = userService;
         this.userLinkAdder = userLinkAdder;
-        this.authenticationManager = authenticationManager;
         this.jwtTokenProvider = jwtTokenProvider;
         this.clientRegistrationRepository = clientRegistrationRepository;
     }
@@ -67,12 +64,6 @@ public class AuthenticationController {
                 .jwt(jwt)
                 .jwtRefresh(refreshJwt)
                 .build();
-    }
-
-    @GetMapping("/login")
-    @ResponseStatus(HttpStatus.OK)
-    public void login() {
-        System.out.println("Я тут");
     }
 
     @GetMapping("/refresh-token")
