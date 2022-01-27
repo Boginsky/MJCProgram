@@ -39,7 +39,7 @@ public class JwtTokenProvider {
     private long durationTime;
     @Value("${jwt.refresh.duration}")
     private long durationRefreshTime;
-    @Value("${jwt.header}")
+    @Value("${jwt.refresh.header}")
     private String authHeader;
 
 
@@ -93,10 +93,10 @@ public class JwtTokenProvider {
         String token = resolveToken(httpServletRequest);
         Map<String, Object> map = new HashMap<>();
         String username = extractUsernameFromJwt(token);
-        Role role = (Role) Jwts.parser().setSigningKey(keys.getPublic())
+        Role role = Role.valueOf((String) Jwts.parser().setSigningKey(keys.getPublic())
                 .parseClaimsJws(token)
                 .getBody()
-                .get("role");
+                .get("role"));
         String jwt = createToken(username, role);
         String jwtRefresh = createRefreshToken(username, role);
         map.put("jwt", jwt);
@@ -109,7 +109,8 @@ public class JwtTokenProvider {
         try {
             Jwts.parser()
                     .setSigningKey(publicKey)
-                    .parseClaimsJws(token);
+                    .parseClaimsJws(token)
+                    .getHeader();
         } catch (ExpiredJwtException e) {
             throw e;
         } catch (JwtException | IllegalArgumentException e) {
@@ -121,12 +122,6 @@ public class JwtTokenProvider {
         String username = extractUsernameFromJwt(token);
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
-    }
-
-    public String getPublicKey() {
-        return Base64.getEncoder()
-                .encodeToString(keys.getPublic()
-                        .getEncoded());
     }
 
     private String extractUsernameFromJwt(String token) {
@@ -141,7 +136,7 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token)
                 .getHeader()
                 .get("typ");
-        return jwtHeader.equals("jwtRefresh");
+        return jwtHeader.equals("JWTRefresh");
     }
 
     private String resolveToken(HttpServletRequest httpServletRequest) {

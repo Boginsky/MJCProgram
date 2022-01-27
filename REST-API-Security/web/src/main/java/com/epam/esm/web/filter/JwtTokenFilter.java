@@ -50,17 +50,21 @@ public class JwtTokenFilter extends GenericFilterBean {
         String token = resolveToken((HttpServletRequest) request);
         String refreshToken = resolveRefreshToken((HttpServletRequest) request);
         try {
-            if (token != null && refreshToken != null) {
-                jwtTokenProvider.validateToken(token);
-                jwtTokenProvider.validateToken(refreshToken);
-                Authentication authentication = jwtTokenProvider.getAuthentication(token);
+            if (token != null) {
                 if (!requestURL.contains("refresh-token")) {
+                    jwtTokenProvider.validateToken(token);
+                    Authentication authentication = jwtTokenProvider.getAuthentication(token);
                     if (authentication != null && !jwtTokenProvider.extractHeaderFromJwt(token)) {
                         SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }else {
+                        throw new InvalidJwtException("message.jwt.invalid");
                     }
-                } else if (authentication != null && jwtTokenProvider.extractHeaderFromJwt(refreshToken)) {
-                    authentication = new UsernamePasswordAuthenticationToken(null, null, Collections.singleton(new SimpleGrantedAuthority("refresh:token")));
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                } else {
+                    jwtTokenProvider.validateToken(refreshToken);
+                    if (jwtTokenProvider.extractHeaderFromJwt(refreshToken)) {
+                        Authentication authentication = new UsernamePasswordAuthenticationToken(null, null, Collections.singleton(new SimpleGrantedAuthority("refresh:token")));
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
                 }
             }
             chain.doFilter(request, response);
@@ -69,7 +73,8 @@ public class JwtTokenFilter extends GenericFilterBean {
             ExceptionResponse responseObject = exceptionControllerAdviser.handleJwtInvalidException(e, locale).getBody();
             jsonResponseSender.send((HttpServletResponse) response, responseObject);
         } catch (ExpiredJwtException e) {
-            if (!jwtTokenProvider.extractHeaderFromJwt(token)) {
+            jwtTokenProvider.validateToken(refreshToken);
+            if (jwtTokenProvider.extractHeaderFromJwt(refreshToken)) {
                 Authentication authentication = new UsernamePasswordAuthenticationToken(null, null, Collections.singleton(new SimpleGrantedAuthority("refresh:token")));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
