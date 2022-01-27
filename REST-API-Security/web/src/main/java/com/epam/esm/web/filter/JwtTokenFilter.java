@@ -7,6 +7,7 @@ import com.epam.esm.web.exception.ExceptionResponse;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -45,26 +47,22 @@ public class JwtTokenFilter extends GenericFilterBean {
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         String requestURL = ((HttpServletRequest) request).getRequestURI();
         String token = resolveToken((HttpServletRequest) request);
         String refreshToken = resolveRefreshToken((HttpServletRequest) request);
         try {
-            if (token != null) {
+            if (token != null && refreshToken != null) {
+                jwtTokenProvider.validateToken(token);
                 if (!requestURL.contains("refresh-token")) {
-                    jwtTokenProvider.validateToken(token);
                     Authentication authentication = jwtTokenProvider.getAuthentication(token);
                     if (authentication != null && !jwtTokenProvider.extractHeaderFromJwt(token)) {
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     } else {
                         throw new InvalidJwtException("message.jwt.invalid");
                     }
-                } else {
-                    jwtTokenProvider.validateToken(refreshToken);
-                    if (jwtTokenProvider.extractHeaderFromJwt(refreshToken)) {
-                        Authentication authentication = new UsernamePasswordAuthenticationToken(null, null, Collections.singleton(new SimpleGrantedAuthority("refresh:token")));
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
-                    }
+                }else {
+                    throw new AccessDeniedException("message.forbidden");
                 }
             }
             chain.doFilter(request, response);
@@ -73,17 +71,22 @@ public class JwtTokenFilter extends GenericFilterBean {
             ExceptionResponse responseObject = exceptionControllerAdviser.handleJwtInvalidException(e, locale).getBody();
             jsonResponseSender.send((HttpServletResponse) response, responseObject);
         } catch (ExpiredJwtException e) {
-            jwtTokenProvider.validateToken(refreshToken);
-            if (jwtTokenProvider.extractHeaderFromJwt(refreshToken)) {
-                Authentication authentication = new UsernamePasswordAuthenticationToken(null, null, Collections.singleton(new SimpleGrantedAuthority("refresh:token")));
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+            if (requestURL.contains("refresh-token")) {
+                jwtTokenProvider.validateToken(refreshToken);
+                if (jwtTokenProvider.extractHeaderFromJwt(refreshToken)) {
+                    Authentication authentication = new UsernamePasswordAuthenticationToken(null, null, Collections.singleton(new SimpleGrantedAuthority("refresh:token")));
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    chain.doFilter(request, response);
+                }
+            } else {
+                Locale locale = request.getLocale();
+                ExceptionResponse responseObject = exceptionControllerAdviser.handleExpiredJwtException(e, locale).getBody();
+                jsonResponseSender.send((HttpServletResponse) response, responseObject);
             }
+        }
+        catch (AccessDeniedException e){
             Locale locale = request.getLocale();
-            ExceptionResponse responseObject = exceptionControllerAdviser.handleExpiredJwtException(e, locale).getBody();
-            jsonResponseSender.send((HttpServletResponse) response, responseObject);
-        } catch (Exception e) {
-            Locale locale = request.getLocale();
-            ExceptionResponse responseObject = exceptionControllerAdviser.handleGlobalException(e, locale).getBody();
+            ExceptionResponse responseObject = exceptionControllerAdviser.handleAccessDeniedException(e, locale).getBody();
             jsonResponseSender.send((HttpServletResponse) response, responseObject);
         }
     }

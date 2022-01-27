@@ -59,7 +59,7 @@ public class ExceptionControllerAdviser {
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ExceptionResponse> handleAccessDeniedException(AccessDeniedException e, Locale locale) {
-        return buildErrorResponse(resolveResourceBundle("message.forbidden", locale), 403, HttpStatus.FORBIDDEN);
+        return buildErrorResponse(resolveResourceBundle(e.getMessage(), locale), 403, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(InvalidJwtException.class)

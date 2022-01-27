@@ -64,7 +64,7 @@ public class JwtTokenProvider {
         claims.put("role", role);
         Date currentTime = new Date();
         Date expirationTime = new Date(currentTime.getTime() + durationTime);
-        return Jwts.builder()
+        return AUTHORIZATION_TYPE_STR + " " + Jwts.builder() // FIXME: 27.01.2022
                 .setClaims(claims)
                 .setIssuedAt(currentTime)
                 .setExpiration(expirationTime)
@@ -79,7 +79,7 @@ public class JwtTokenProvider {
         claims.put("role", role);
         Date currentTime = new Date();
         Date expirationTime = new Date(currentTime.getTime() + durationRefreshTime);
-        return Jwts.builder()
+        return AUTHORIZATION_TYPE_STR+ " " + Jwts.builder() // FIXME: 27.01.2022
                 .setClaims(claims)
                 .setIssuedAt(currentTime)
                 .setExpiration(expirationTime)
