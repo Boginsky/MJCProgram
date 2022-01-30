@@ -100,18 +100,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteById(Long id) { // FIXME: 24.01.2022
+    public void deleteById(Long id) {
         User user = isPresentById(id);
         userRepository.delete(user);
     }
 
     @Override
     public Optional<User> getByEmail(String email) {
-        Optional<User> userOptional = userRepository.findByEmail(email);
-        if (!userOptional.isPresent()) {
-            return Optional.empty();
-        }
-        return userOptional;
+        return userRepository.findByEmail(email);
     }
 
     private void validateFields(UserDto userDto) {
@@ -127,7 +123,7 @@ public class UserServiceImpl implements UserService {
 
     private void isExistByUsername(String userName) {
         if (userRepository.findByUsername(userName).isPresent()) {
-            throw new NoSuchEntityException("message.user.missing");
+            throw new DuplicateEntityException("message.user.existent");
         }
     }
 

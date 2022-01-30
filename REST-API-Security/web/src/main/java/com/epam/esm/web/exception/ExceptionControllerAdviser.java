@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -59,7 +60,12 @@ public class ExceptionControllerAdviser {
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ExceptionResponse> handleAccessDeniedException(AccessDeniedException e, Locale locale) {
-        return buildErrorResponse(resolveResourceBundle(e.getMessage(), locale), 403, HttpStatus.FORBIDDEN);
+        return buildErrorResponse(resolveResourceBundle("message.forbidden", locale), 403, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ExceptionResponse> handleAccessDeniedException(BadCredentialsException e, Locale locale) {
+        return buildErrorResponse(resolveResourceBundle("message.badCredentials", locale), 403, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(InvalidJwtException.class)

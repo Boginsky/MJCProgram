@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.hateoas.RepresentationModel;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 @NoArgsConstructor(force = true, access = AccessLevel.PRIVATE)
@@ -36,8 +37,7 @@ public class UserDto extends RepresentationModel<UserDto> {
 
     @NotNull(message = "message.entity.data.missing")
     @Size(min = 1, max = 100, message = "message.user.invalid")
-//    @Pattern() 
-    // FIXME: 22.01.2022
+    @Pattern(regexp = "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$", message = "message.email.invalid")
     private String email;
 
     @NotNull(message = "message.entity.data.missing")

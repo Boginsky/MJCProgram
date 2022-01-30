@@ -16,9 +16,17 @@ public class CommonUtil {
         for (int i = 0; i < sortColumns.size(); i++) {
             if (orderType.iterator().hasNext()) {
                 if (orderType.get(i).equals("asc")) {
-                    sort.and(Sort.Order.asc(sortColumns.get(i)));
+                    if (sort == Sort.unsorted()) {
+                        sort = Sort.by(Sort.Order.asc(sortColumns.get(i)));
+                    } else {
+                        sort.and(Sort.Order.asc(sortColumns.get(i)));
+                    }
                 } else {
-                    sort.and(Sort.Order.desc(sortColumns.get(i)));
+                    if (sort == Sort.unsorted()) {
+                        sort = Sort.by(Sort.Order.desc(sortColumns.get(i)));
+                    } else {
+                        sort.and(Sort.Order.desc(sortColumns.get(i)));
+                    }
                 }
             } else {
                 sort.and(Sort.Order.asc(sortColumns.get(i)));

@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ResolvableType;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,14 +34,17 @@ public class AuthenticationController {
     private final LinkAdder<UserDto> userLinkAdder;
     private final JwtTokenProvider jwtTokenProvider;
     private final ClientRegistrationRepository clientRegistrationRepository;
+    private final AuthenticationManager authenticationManager;
 
     @Autowired
     public AuthenticationController(UserService userService, LinkAdder<UserDto> userLinkAdder,
-                                    JwtTokenProvider jwtTokenProvider, ClientRegistrationRepository clientRegistrationRepository) {
+                                    JwtTokenProvider jwtTokenProvider, ClientRegistrationRepository clientRegistrationRepository,
+                                    AuthenticationManager authenticationManager) {
         this.userService = userService;
         this.userLinkAdder = userLinkAdder;
         this.jwtTokenProvider = jwtTokenProvider;
         this.clientRegistrationRepository = clientRegistrationRepository;
+        this.authenticationManager = authenticationManager;
     }
 
     @PostMapping("/sign-up")
@@ -55,6 +60,10 @@ public class AuthenticationController {
     public GeneratedJwtDto login(@RequestBody LoginRequestDto loginRequestDto) {
         String username = loginRequestDto.getUsername();
         UserDto userDto = userService.getByUsername(username);
+        String password = loginRequestDto.getPassword();
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(username, password);
+        authenticationManager.authenticate(authenticationToken);
         String jwt = jwtTokenProvider.createToken(userDto.getUsername(), userDto.getRole());
         String refreshJwt = jwtTokenProvider.createRefreshToken(userDto.getUsername(), userDto.getRole());
         return GeneratedJwtDto.builder()

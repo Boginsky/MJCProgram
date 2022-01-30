@@ -11,15 +11,16 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.FetchType;
 import javax.persistence.ManyToMany;
 import javax.persistence.NamedNativeQuery;
 import javax.persistence.Table;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
 @NoArgsConstructor(force = true, access = AccessLevel.PUBLIC)
 @Entity
+@Data
 @Table(name = "tag")
 @EntityListeners(EntityAuditListener.class)
 @SuperBuilder
@@ -41,7 +42,7 @@ public class Tag extends ApplicationBaseEntity {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    @ManyToMany(mappedBy = "tags", cascade = CascadeType.PERSIST)
+    @ManyToMany(mappedBy = "tags", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private List<GiftCertificate> giftCertificateList = new ArrayList<>();
 
 }

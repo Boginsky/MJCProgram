@@ -9,6 +9,7 @@ import com.epam.esm.service.dto.converter.DtoConverter;
 import com.epam.esm.service.dto.converter.impl.GiftCertificateConverter;
 import com.epam.esm.service.dto.entity.GiftCertificateDto;
 import com.epam.esm.service.dto.entity.TagDto;
+import com.epam.esm.service.exception.DuplicateEntityException;
 import com.epam.esm.service.exception.NoSuchEntityException;
 import com.epam.esm.service.service.GiftCertificateService;
 import com.epam.esm.service.util.CommonUtil;
@@ -62,9 +63,9 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                                                    Long giftCertificateId, Integer page, Integer size) {
         if (giftCertificateId != null) {
             return getById(giftCertificateId);
-        } else if (sortColumns != null || filterBy != null) {
+        } else if (!sortColumns.isEmpty() || !filterBy.isEmpty()) {
             return getAllWithSortingAndFiltering(sortColumns, filterBy, orderType, page, size);
-        } else if (tagName != null) {
+        } else if (!tagName.isEmpty()) {
             return getAllByTagName(tagName, page, size);
         } else {
             return getAll(page, size);
@@ -74,6 +75,9 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     public void deleteById(Long id) {
         GiftCertificate giftCertificate = isPresent(id);
+        for (Tag tag : giftCertificate.getTags()) {
+            tag.getGiftCertificateList().remove(giftCertificate);
+        }
         giftCertificateRepository.delete(giftCertificate);
     }
 
@@ -90,6 +94,7 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
     @Override
     public GiftCertificateDto create(GiftCertificateDto giftCertificateDto) {
         validateFields(giftCertificateDto);
+        isExist(giftCertificateDto.getName());
         Set<TagDto> tagSet = getTagDtoSet(giftCertificateDto);
         giftCertificateDto.setTags(tagSet);
         giftCertificateDto.setStatus(true);
@@ -127,8 +132,13 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
                                                                         List<String> orderType, Integer page, Integer size) {
         Sort sort = commonUtil.buildSort(sortColumns, orderType);
         Pageable pageable = commonUtil.getPageable(page, size, sort);
-        Page<GiftCertificate> giftCertificateList = giftCertificateRepository.
-                findAllByNameContainingOrDescriptionContaining(filterBy.get(0), filterBy.get(1), pageable);
+        Page<GiftCertificate> giftCertificateList;
+        if (filterBy.size() == 2) {
+            giftCertificateList = giftCertificateRepository.
+                    findAllByNameContainingAndDescriptionContaining(filterBy.get(0), filterBy.get(1), pageable);
+        } else {
+            giftCertificateList = giftCertificateRepository.findAll(pageable);
+        }
         return giftCertificateDtoConverter.convertContentToDto(giftCertificateList);
     }
 
@@ -227,5 +237,11 @@ public class GiftCertificateServiceImpl implements GiftCertificateService {
             }
         }
         return tagSet;
+    }
+
+    private void isExist(String giftCertificateName) {
+        if (giftCertificateRepository.findByName(giftCertificateName).isPresent()) {
+            throw new DuplicateEntityException("message.certificate.existent");
+        }
     }
 }

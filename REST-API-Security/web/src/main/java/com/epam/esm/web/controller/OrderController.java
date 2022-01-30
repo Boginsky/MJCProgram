@@ -29,12 +29,11 @@ public class OrderController {
 
     @GetMapping(value = {"/{id}", ""})
     @ResponseStatus(HttpStatus.OK)
-    @PreAuthorize("hasAuthority('orders:get')")
+    @PreAuthorize("hasAuthority('orders:getAll')")
     public CustomPage<OrderDto> getAll(@PathVariable(name = "id", required = false) Long id,
-                                       @RequestParam(name = "user-id", required = false) Long userId, // FIXME: 25.01.2022 migrate to user
                                        @RequestParam(value = "page", defaultValue = "0", required = false) Integer page,
                                        @RequestParam(value = "size", defaultValue = "10", required = false) Integer size) {
-        CustomPage<OrderDto> orderDtoList = orderService.getRoute(userId, id, page, size);
+        CustomPage<OrderDto> orderDtoList = orderService.getRoute(id, page, size);
         orderDtoList.getContent().forEach(orderLinkAdder::addLinks);
         return orderDtoList;
     }

@@ -74,10 +74,8 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public CustomPage<OrderDto> getRoute(Long userId, Long orderId, Integer page, Integer size) {
-        if (userId != null) {
-            return getAllByUserId(userId, page, size);
-        } else if (orderId != null) {
+    public CustomPage<OrderDto> getRoute(Long orderId, Integer page, Integer size) {
+        if (orderId != null) {
             return getById(orderId);
         } else {
             return getAll(page, size);
@@ -85,9 +83,30 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    public CustomPage<OrderDto> getRoute(Long userId, Long orderId, Integer page, Integer size) {
+        if (userId != null && orderId != null) {
+            return getOrderByUserId(userId, orderId);
+        } else {
+            return getAllByUserId(userId, page, size);
+        }
+    }
+
+    @Override
     public CustomPage<OrderDto> getById(Long orderId) {
         Order order = orderRepository.findById(orderId).orElseThrow(
                 () -> new NoSuchEntityException("message.order.missing"));
+        List<OrderDto> listOfOrders = new ArrayList<>();
+        listOfOrders.add(orderDtoConverter.convertToDto(order));
+        return CustomPage.<OrderDto>builder()
+                .content(listOfOrders)
+                .build();
+    }
+
+    @Override
+    public CustomPage<OrderDto> getOrderByUserId(Long userId, Long orderId) {
+        Order order = orderRepository.findById(orderId).orElseThrow(
+                () -> new NoSuchEntityException("message.order.missing"));
+        isUsers(order, userId);
         List<OrderDto> listOfOrders = new ArrayList<>();
         listOfOrders.add(orderDtoConverter.convertToDto(order));
         return CustomPage.<OrderDto>builder()
@@ -139,6 +158,12 @@ public class OrderServiceImpl implements OrderService {
         String username = userDetails.getUsername();
         if (!username.equals(user.getUsername())) {
             throw new InvalidParametersException("message.wrong.user.order");
+        }
+    }
+
+    private void isUsers(Order order, Long userId) {
+        if (!order.getUser().getId().equals(userId)) {
+            throw new InvalidParametersException("message.order.missing");
         }
     }
 }

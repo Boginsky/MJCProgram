@@ -7,9 +7,13 @@ public interface OrderService {
 
     OrderDto create(Long userId, Long giftCertificateId);
 
+    CustomPage<OrderDto> getRoute(Long orderId, Integer page, Integer size);
+
     CustomPage<OrderDto> getRoute(Long userId, Long orderId, Integer page, Integer size);
 
     CustomPage<OrderDto> getById(Long orderId);
+
+    CustomPage<OrderDto> getOrderByUserId(Long userId, Long orderId);
 
     CustomPage<OrderDto> getAll(Integer page, Integer size);
 

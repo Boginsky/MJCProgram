@@ -9,6 +9,7 @@ import lombok.experimental.SuperBuilder;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.math.BigDecimal;
@@ -29,10 +30,12 @@ public class Order extends ApplicationBaseEntity {
     @Column(name = "date_of_purchase", nullable = false)
     private ZonedDateTime dateOfPurchase;
 
-    @ManyToOne(targetEntity = User.class)
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToOne(targetEntity = GiftCertificate.class)
+    @ManyToOne
+    @JoinColumn(name = "gift_certificate_id", nullable = false)
     private GiftCertificate giftCertificate;
 
 }

@@ -8,12 +8,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface GiftCertificateRepository extends JpaRepository<GiftCertificate, Long> {
 
     Page<GiftCertificate> findAllByTagsIn(List<Tag> tags, Pageable pageable);
 
-    Page<GiftCertificate> findAllByNameContainingOrDescriptionContaining(String name, String address, Pageable pageable);
+    Optional<GiftCertificate> findByName(String name);
+
+    Page<GiftCertificate> findAllByNameContainingAndDescriptionContaining(String name, String description, Pageable pageable);
 
 }

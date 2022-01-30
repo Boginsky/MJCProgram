@@ -52,6 +52,19 @@ public class UserController {
         return userDtoList;
     }
 
+    @GetMapping(value = {"/{id}/orders", "/{id}/orders/{order-id}"})
+    @PreAuthorize("hasAuthority('orders:get')")
+    public CustomPage<OrderDto> getOrder(
+            @PathVariable(name = "id") Long id,
+            @PathVariable(name = "order-id", required = false) Long orderId,
+            @RequestParam(value = "page", defaultValue = "0", required = false) Integer page,
+            @RequestParam(value = "size", defaultValue = "10", required = false) Integer size
+    ) {
+        CustomPage<OrderDto> orderDtoList = orderService.getRoute(id, orderId, page, size);
+        orderDtoList.getContent().forEach(orderLinkAdder::addLinks);
+        return orderDtoList;
+    }
+
     @GetMapping(value = "/{id}/highest-cost")
     @PreAuthorize("hasAuthority('bestTag:get')")
     public BestTag getTag(

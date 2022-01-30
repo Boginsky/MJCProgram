@@ -13,6 +13,7 @@ public enum Permission {
     GIFT_CERTIFICATES_DELETE("giftCertificate:delete"),
     USERS_GET("users:get"),
     ORDERS_GET("orders:get"),
+    ORDERS_GET_ALL("orders:getAll"),
     ORDERS_CREATE("orders:create"),
     SIGN_UP("singUp"),
     LOGIN("login"),

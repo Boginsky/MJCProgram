@@ -15,6 +15,7 @@ import static com.epam.esm.service.security.Permission.GIFT_CERTIFICATES_GET;
 import static com.epam.esm.service.security.Permission.GIFT_CERTIFICATES_UPDATE;
 import static com.epam.esm.service.security.Permission.ORDERS_CREATE;
 import static com.epam.esm.service.security.Permission.ORDERS_GET;
+import static com.epam.esm.service.security.Permission.ORDERS_GET_ALL;
 import static com.epam.esm.service.security.Permission.TAGS_CREATE;
 import static com.epam.esm.service.security.Permission.TAGS_DELETE;
 import static com.epam.esm.service.security.Permission.TAGS_GET;
@@ -26,7 +27,7 @@ public enum RoleAuthority {
     USER(permissionSetOf(
             ORDERS_GET, TAGS_GET, USERS_GET, BEST_TAG_GET, GIFT_CERTIFICATES_GET, ORDERS_CREATE)),
     ADMIN(permissionSetOf(
-            ORDERS_GET, ORDERS_CREATE, BEST_TAG_GET, TAGS_GET, TAGS_CREATE, TAGS_DELETE, USERS_GET, TAGS_UPDATE,
+            ORDERS_GET_ALL, ORDERS_GET, ORDERS_CREATE, BEST_TAG_GET, TAGS_GET, TAGS_CREATE, TAGS_DELETE, USERS_GET, TAGS_UPDATE,
             GIFT_CERTIFICATES_GET, GIFT_CERTIFICATES_CREATE, GIFT_CERTIFICATES_DELETE, GIFT_CERTIFICATES_UPDATE));
 
     private final Set<Permission> permissionsSet;

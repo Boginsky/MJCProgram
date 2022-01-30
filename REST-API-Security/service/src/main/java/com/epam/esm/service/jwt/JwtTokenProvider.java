@@ -64,7 +64,7 @@ public class JwtTokenProvider {
         claims.put("role", role);
         Date currentTime = new Date();
         Date expirationTime = new Date(currentTime.getTime() + durationTime);
-        return AUTHORIZATION_TYPE_STR + " " + Jwts.builder() // FIXME: 27.01.2022
+        return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(currentTime)
                 .setExpiration(expirationTime)
@@ -79,7 +79,7 @@ public class JwtTokenProvider {
         claims.put("role", role);
         Date currentTime = new Date();
         Date expirationTime = new Date(currentTime.getTime() + durationRefreshTime);
-        return AUTHORIZATION_TYPE_STR+ " " + Jwts.builder() // FIXME: 27.01.2022
+        return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(currentTime)
                 .setExpiration(expirationTime)
@@ -130,7 +130,7 @@ public class JwtTokenProvider {
                 .getSubject();
     }
 
-    public boolean extractHeaderFromJwt(String token) {
+    public boolean isRefreshToken(String token) {
         String jwtHeader = (String) Jwts.parser().setSigningKey(keys.getPublic())
                 .parseClaimsJws(token)
                 .getHeader()

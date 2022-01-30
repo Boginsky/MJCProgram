@@ -56,12 +56,12 @@ public class JwtTokenFilter extends GenericFilterBean {
                 jwtTokenProvider.validateToken(token);
                 if (!requestURL.contains("refresh-token")) {
                     Authentication authentication = jwtTokenProvider.getAuthentication(token);
-                    if (authentication != null && !jwtTokenProvider.extractHeaderFromJwt(token)) {
+                    if (authentication != null && !jwtTokenProvider.isRefreshToken(token)) {
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     } else {
                         throw new InvalidJwtException("message.jwt.invalid");
                     }
-                }else {
+                } else {
                     throw new AccessDeniedException("message.forbidden");
                 }
             }
@@ -73,7 +73,7 @@ public class JwtTokenFilter extends GenericFilterBean {
         } catch (ExpiredJwtException e) {
             if (requestURL.contains("refresh-token")) {
                 jwtTokenProvider.validateToken(refreshToken);
-                if (jwtTokenProvider.extractHeaderFromJwt(refreshToken)) {
+                if (jwtTokenProvider.isRefreshToken(refreshToken)) {
                     Authentication authentication = new UsernamePasswordAuthenticationToken(null, null, Collections.singleton(new SimpleGrantedAuthority("refresh:token")));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                     chain.doFilter(request, response);
@@ -83,8 +83,7 @@ public class JwtTokenFilter extends GenericFilterBean {
                 ExceptionResponse responseObject = exceptionControllerAdviser.handleExpiredJwtException(e, locale).getBody();
                 jsonResponseSender.send((HttpServletResponse) response, responseObject);
             }
-        }
-        catch (AccessDeniedException e){
+        } catch (AccessDeniedException e) {
             Locale locale = request.getLocale();
             ExceptionResponse responseObject = exceptionControllerAdviser.handleAccessDeniedException(e, locale).getBody();
             jsonResponseSender.send((HttpServletResponse) response, responseObject);

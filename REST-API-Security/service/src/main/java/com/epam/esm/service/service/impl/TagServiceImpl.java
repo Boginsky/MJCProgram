@@ -71,7 +71,8 @@ public class TagServiceImpl implements TagService {
     @Override
     public void deleteById(Long id) {
         Tag tag = isPresent(id);
-        for (GiftCertificate giftCertificate : tag.getGiftCertificateList()) {
+        List<GiftCertificate> giftCertificateList = tag.getGiftCertificateList();
+        for (GiftCertificate giftCertificate : giftCertificateList) {
             giftCertificate.getTags().remove(tag);
         }
         tagRepository.deleteById(tag.getId());
@@ -137,4 +138,5 @@ public class TagServiceImpl implements TagService {
         }
         return bestTagOptional.get();
     }
+
 }

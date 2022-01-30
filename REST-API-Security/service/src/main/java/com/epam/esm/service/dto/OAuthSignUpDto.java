@@ -13,7 +13,7 @@ import java.util.Map;
 @AllArgsConstructor
 @Data
 @Builder
-public class OAuthSignUpDto { // FIXME: 26.01.2022 
+public class OAuthSignUpDto {
 
     private Map<String, String> refs = new HashMap<>();
 
