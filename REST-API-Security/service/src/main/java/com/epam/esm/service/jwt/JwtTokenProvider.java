@@ -22,7 +22,6 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,7 +40,6 @@ public class JwtTokenProvider {
     private long durationRefreshTime;
     @Value("${jwt.refresh.header}")
     private String authHeader;
-
 
     @Autowired
     public JwtTokenProvider(@Qualifier("securityUserService") UserDetailsService userDetailsService) {
@@ -118,6 +116,14 @@ public class JwtTokenProvider {
         }
     }
 
+    public boolean isRefreshToken(String token) {
+        String jwtHeader = (String) Jwts.parser().setSigningKey(keys.getPublic())
+                .parseClaimsJws(token)
+                .getHeader()
+                .get("typ");
+        return jwtHeader.equals("JWTRefresh");
+    }
+
     public Authentication getAuthentication(String token) {
         String username = extractUsernameFromJwt(token);
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -131,24 +137,11 @@ public class JwtTokenProvider {
                 .getSubject();
     }
 
-    public boolean isRefreshToken(String token) {
-        String jwtHeader = (String) Jwts.parser().setSigningKey(keys.getPublic())
-                .parseClaimsJws(token)
-                .getHeader()
-                .get("typ");
-        return jwtHeader.equals("JWTRefresh");
-    }
-
     private String resolveToken(HttpServletRequest httpServletRequest) {
         String authToken = httpServletRequest.getHeader(authHeader);
         if (authToken != null && authToken.startsWith(AUTHORIZATION_TYPE_STR)) {
             return authToken.substring(AUTHORIZATION_TYPE_STR.length() + 1);
         }
         return null;
-    }
-
-    public String getPublicKey() {
-       return Base64.getEncoder()
-               .encodeToString(keys.getPublic().getEncoded());
     }
 }
