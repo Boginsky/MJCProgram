@@ -95,6 +95,7 @@ public class OrderServiceImpl implements OrderService {
     public CustomPage<OrderDto> getById(Long orderId) {
         Order order = orderRepository.findById(orderId).orElseThrow(
                 () -> new NoSuchEntityException("message.order.missing"));
+        checkOrder(order);
         List<OrderDto> listOfOrders = new ArrayList<>();
         listOfOrders.add(orderDtoConverter.convertToDto(order));
         return CustomPage.<OrderDto>builder()
@@ -157,6 +158,15 @@ public class OrderServiceImpl implements OrderService {
                 .getPrincipal();
         String username = userDetails.getUsername();
         if (!username.equals(user.getUsername())) {
+            throw new InvalidParametersException("message.wrong.user.order");
+        }
+    }
+
+    private void checkOrder(Order order) {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication()
+                .getPrincipal();
+        String username = userDetails.getUsername();
+        if (!username.equals(order.getUser().getUsername())) {
             throw new InvalidParametersException("message.wrong.user.order");
         }
     }

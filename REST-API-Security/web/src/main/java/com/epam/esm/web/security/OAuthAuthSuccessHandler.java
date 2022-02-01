@@ -100,7 +100,7 @@ public class OAuthAuthSuccessHandler {
         user.setFirstName(oidcUser.getGivenName());
         user.setLastName(oidcUser.getFamilyName());
         user.setEmail(oidcUser.getEmail());
-        user.setPassword((String.valueOf(user.getEmail().hashCode() & 0x7fffffff)));
+        user.setPassword((String.valueOf(oidcUser.getEmail().hashCode() & 0x7fffffff)));
         return user;
     }
 }

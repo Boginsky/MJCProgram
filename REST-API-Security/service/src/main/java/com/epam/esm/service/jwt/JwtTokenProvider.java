@@ -22,6 +22,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -144,5 +145,10 @@ public class JwtTokenProvider {
             return authToken.substring(AUTHORIZATION_TYPE_STR.length() + 1);
         }
         return null;
+    }
+
+    public String getPublicKey() {
+       return Base64.getEncoder()
+               .encodeToString(keys.getPublic().getEncoded());
     }
 }

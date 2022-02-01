@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.Collections;
 import java.util.Map;
 
 @RestController
@@ -99,5 +100,12 @@ public class AuthenticationController {
                             OAUTH_BASE_URL + registration.getRegistrationId()));
         }
         return oauthLogin;
+    }
+
+    @GetMapping("/jwt-public-key")
+    @ResponseStatus(HttpStatus.OK)
+    public Map<String, Object> getJwtPublicKey() {
+        String publicKeyBase64 = jwtTokenProvider.getPublicKey();
+        return Collections.singletonMap("key", publicKeyBase64);
     }
 }

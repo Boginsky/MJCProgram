@@ -138,5 +138,4 @@ public class TagServiceImpl implements TagService {
         }
         return bestTagOptional.get();
     }
-
 }
